@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SCRIPT_REPOSITORY</name>
+          <description></description>
+          <defaultValue>git://github.com/avendasora/WOJenkins.git</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>WO_VERSION</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.4.3</string>
+              <string>5.3.3</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WONDER_REPOSITORY</name>
+          <description>This is the source code repository for Project Wonder. The default is {git://github.com/projectwonder/wonder.git} but if you should change it to your own clone if you have made changes to Wonder that have not been pulled into the public repository.</description>
+          <defaultValue>git://github.com/projectwonder/wonder.git</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>WONDER_BRANCH</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>origin/master</string>
+              <string>origin/Wonder_5_0_0_WebObjects_5_3_Branch</string>
+              <string>Wonder_5_0_0_Legacy</string>
+              <string>Wonder_4_5_0_Branch</string>
+              <string>Wonder_4_0_0_Branch</string>
+              <string>Wonder_3_0_0_Branch</string>
+              <string>Wonder_2_0_0_WebObjects_5_4_Branch</string>
+              <string>Wonder_2_0_0_Branch</string>
+              <string>Wonder_1_0_1_Branch</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WONDER_REVISION</name>
+          <description>The revision of the Wonder frameworks you want to build. If you leave this blank, it will just use the Head of the specified WONDER_BRANCH.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BUILD_TARGETS</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>frameworks frameworks.install</string>
+              <string>all</string>
+              <string>applications applications.install</string>
+              <string>examples examples.install</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM">
+    <scms>
+      <hudson.plugins.git.GitSCM>
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/*:refs/remotes/origin/*</refspec>
+            <url>git@github.com:avendasora/WOJenkins.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>origin/master</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>WOJenkins</relativeTargetDir>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <scmName>WOJenkins</scmName>
+      </hudson.plugins.git.GitSCM>
+      <hudson.plugins.git.GitSCM>
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/*:refs/remotes/origin/*</refspec>
+            <url>git://github.com/projectwonder/wonder.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>${WONDER_BRANCH}</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>Wonder</relativeTargetDir>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <scmName>Wonder</scmName>
+      </hudson.plugins.git.GitSCM>
+    </scms>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>${WORKSPACE}/WOJenkins/Install/WebObjects/installWebObjects.sh
+${WORKSPACE}/WOJenkins/Build/Wonder/setupWonderWorkspace.sh
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Ant>
+      <targets>${BUILD_TARGETS} -propertyfile ${WORKSPACE}/Root/hudson.build.properties</targets>
+      <antName>(Default)</antName>
+      <buildFile>Wonder/build.xml</buildFile>
+    </hudson.tasks.Ant>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
