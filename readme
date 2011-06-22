@@ -1,0 +1,9 @@
+These shell scripts, when combined with their corresponding config.xml files will:
+
+1) Download and Install WebObjects in HUDSON_HOME/Repository/WebObjects/
+
+2) Clone, Build and Install the Wonder Frameworks in HUDSON_HOME/Repository/
+
+3) Build your WebObjects Framework or Application
+
+4) Deploy you WebObjects Application to a remote server running Wonder's JavaMonitor and wotaskd.
