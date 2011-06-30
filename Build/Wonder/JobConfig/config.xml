@@ -14,7 +14,7 @@
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>SCRIPT_REPOSITORY</name>
-          <description></description>
+          <description>DEFAULT: git://github.com/avendasora/WOJenkins.git</description>
           <defaultValue>git://github.com/avendasora/WOJenkins.git</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
@@ -29,30 +29,13 @@
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>WONDER_REPOSITORY</name>
-          <description>This is the source code repository for Project Wonder. The default is {git://github.com/projectwonder/wonder.git} but if you should change it to your own clone if you have made changes to Wonder that have not been pulled into the public repository.</description>
-          <defaultValue>git://github.com/projectwonder/wonder.git</defaultValue>
+          <description>DEFAULT: https://github.com/projectwonder/wonder.git</description>
+          <defaultValue>https://github.com/projectwonder/wonder.git</defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>WONDER_BRANCH</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>origin/master</string>
-              <string>origin/Wonder_5_0_0_WebObjects_5_3_Branch</string>
-              <string>Wonder_5_0_0_Legacy</string>
-              <string>Wonder_4_5_0_Branch</string>
-              <string>Wonder_4_0_0_Branch</string>
-              <string>Wonder_3_0_0_Branch</string>
-              <string>Wonder_2_0_0_WebObjects_5_4_Branch</string>
-              <string>Wonder_2_0_0_Branch</string>
-              <string>Wonder_1_0_1_Branch</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>WONDER_REVISION</name>
-          <description>The revision of the Wonder frameworks you want to build. If you leave this blank, it will just use the Head of the specified WONDER_BRANCH.</description>
-          <defaultValue></defaultValue>
+          <name>WONDER_BRANCH_REVISION</name>
+          <description>The Branch name or the SHA1 of the Revision you want to check out. For example: 54dc025</description>
+          <defaultValue>master</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>BUILD_TARGETS</name>
@@ -82,7 +65,7 @@
         </userRemoteConfigs>
         <branches>
           <hudson.plugins.git.BranchSpec>
-            <name>origin/master</name>
+            <name>**</name>
           </hudson.plugins.git.BranchSpec>
         </branches>
         <recursiveSubmodules>false</recursiveSubmodules>
@@ -108,12 +91,12 @@
           <hudson.plugins.git.UserRemoteConfig>
             <name>origin</name>
             <refspec>+refs/heads/*:refs/remotes/origin/*</refspec>
-            <url>git://github.com/projectwonder/wonder.git</url>
+            <url>https://github.com/projectwonder/wonder.git</url>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
         <branches>
           <hudson.plugins.git.BranchSpec>
-            <name>${WONDER_BRANCH}</name>
+            <name>${WONDER_BRANCH_REVISION}</name>
           </hudson.plugins.git.BranchSpec>
         </branches>
         <recursiveSubmodules>false</recursiveSubmodules>
