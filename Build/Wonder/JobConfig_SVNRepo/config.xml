@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SCRIPT_REPOSITORY</name>
+          <description>This is the repository location to get the scripts needed to complete this build. You can either get them from the WOCommunity SVN server, or make copies and add them to your own repository (recommended). The following scripts must be present:
+&lt;ul&gt;
+&lt;li&gt;installWebObjects.sh&lt;/li&gt;
+&lt;li&gt;setupWonderWorkspace.sh&lt;/li&gt;
+&lt;li&gt;applyWonderPatch.sh&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+          <defaultValue>https://services.wocommunity.org/wowodc/HudsonBuildFiles</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>WO_VERSION</name>
+          <description>This is the version of WebObjects you would like this job to download and install in the HUDSON_HOME/WOFrameworksRepository directory. If the version you have specified is already present there, it will &lt;em&gt;not&lt;/em&gt; download and install it again.
+&lt;br /&gt;&lt;b&gt;This setting also controls how the &lt;em&gt;wonder.patch&lt;/em&gt; build property is set.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.4.3</string>
+              <string>5.3.3</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WONDER_REPOSITORY</name>
+          <description>This is the repository for Wonder. You should use the path that contains &quot;Applications&quot; and &quot;Frameworks&quot; directories. The default value &lt;em&gt;https://wonder.svn.sourceforge.net/svnroot/wonder/trunk/Wonder&lt;/em&gt; will build the trunk of Wonder.</description>
+          <defaultValue>https://wonder.svn.sourceforge.net/svnroot/wonder/</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>WONDER_BRANCH</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>branches/Wonder_5_0_0_WebObjects_5_4_Branch</string>
+              <string>trunk</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WONDER_REVISION</name>
+          <description>Leave blank for head. Prefix revision number with a @.
+&lt;br /&gt;&lt;em&gt;For Example:&lt;/em&gt; @10989</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PATCH_REPOSITORY</name>
+          <description>This is the repository location for any patches that your projects need. Unfortunately this value can not be left blank. If you don&apos;t have any patches, you can simply use &lt;em&gt;https://services.wocommunity.org/wowodc/WonderPatches&lt;/em&gt; and leave the PATCH_FILE parameter blank.
+&lt;br /&gt;&lt;b&gt;You should maintain individual patch files for each release of your application.&lt;/b&gt;</description>
+          <defaultValue>file://localhost/Users/davendasora/Documents/Projects/LocalRepository/WonderPatches</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PATCH_FILE</name>
+          <description>This is the patch file. The index must start at the top level &quot;Wonder&quot; directory. 
+&lt;br /&gt;&lt;em&gt;For example:&lt;/em&gt; Index: Wonder/Frameworks/Ajax/Ajax/WebServerResources/calendar.js
+&lt;br /&gt;If you don&apos;t have any patches for Project Wonder, then just leave this blank.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BUILD_TARGETS</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>all</string>
+              <string>frameworks frameworks.install</string>
+              <string>applications applications.install</string>
+              <string>examples examples.install</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>${WONDER_REPOSITORY}${WONDER_BRANCH}/Wonder</remote>
+        <local>Wonder</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>${SCRIPT_REPOSITORY}</remote>
+        <local>Scripts</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>${PATCH_REPOSITORY}</remote>
+        <local>Patch</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.CheckoutUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>${WORKSPACE}/Scripts/installWebObjects.sh
+${WORKSPACE}/Scripts/setupWonderWorkspace.sh
+${WORKSPACE}/Scripts/applyWonderPatch.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Ant>
+      <targets>${BUILD_TARGETS} -propertyfile ${WORKSPACE}/Root/hudson.build.properties</targets>
+      <antName>(Default)</antName>
+    </hudson.tasks.Ant>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
