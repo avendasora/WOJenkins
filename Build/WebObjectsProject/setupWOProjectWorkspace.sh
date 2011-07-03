@@ -28,6 +28,8 @@ fi
 
 if [ "$BRANCHES_TAGS_TRUNK" == "trunk" ]; then
 	BRANCH_TAG_DELIMITER=""
+else if [ "$BRANCHES_TAGS_TRUNK" == "" ]; then
+	BRANCH_TAG_DELIMITER="";
 else
 	BRANCH_TAG_DELIMITER="_";
 fi
