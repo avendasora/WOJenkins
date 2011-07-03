@@ -132,8 +132,8 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
-	echo "Project: ${PROJECT}"
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
+        echo "${PROJECT} is the requested project."
         FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
         # Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
         for FRAMEWORK in $FRAMEWORKS; do
@@ -187,11 +187,11 @@ for PROJECT in $PROJECTS; do
 	fi
 done
 
-# Link to the woproject.jar so Ant can use it for building
+echo "Link to ${WOPROJECT} so Ant can build the WO project."
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
-# Setup build.properties for Ant to use for building
+echo "Setup ${ROOT}/build.properties for Ant to use for building"
 cat > ${ROOT}/build.properties << END
 wo.system.root=${ROOT}${SYSTEM_PATH_PREFIX}
 wo.system.frameworks=${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
