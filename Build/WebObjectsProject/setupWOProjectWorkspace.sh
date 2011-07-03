@@ -133,56 +133,58 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
 	echo "Project: ${PROJECT}"
-	FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
-	# Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
-	for FRAMEWORK in $FRAMEWORKS; do
-		FRAMEWORK_LINK_SUCCESSFUL="false"
-		echo "Framework: ${FRAMEWORK}"
-		
-		# Check to see if the Framework is a System framework (WebObjects core frameworks) by checking for it in the System frameworks path of the repository
-		echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-		if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
-			echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/"
-			(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/)
-			FRAMEWORK_LINK_SUCCESSFUL="true"
-		fi
-
-		# Check to see if the Framework is a WOnder framework by checking for it in the WOnder frameworks path of the repository
-		# NOTE: The same framework name can exist in both (JavaWOExtensions.framework, for example) so this is not either/or situation
-		# and we must link to both. The Local version will be used automatically by WO if it exists.
-		echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-		if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
-			echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
-			(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
-			FRAMEWORK_LINK_SUCCESSFUL="true"
-		fi	
-
-		# Check to see if the Framework is a Hudson-Built framework by checking for it in the Jobs directory for properly named Hudson jobs.
-		# NOTE: We may create and/or build our own version of a Wonder or System framework, so we need to check for that last too, so this
-		# Can't be an elseif, it must be an if.
-		echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-		if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz" ]; then
-			echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-			if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework" ]; then
-				echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
-			else
-				echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
-				echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-				tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz
-			fi
-			echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
-			(ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
-			FRAMEWORK_LINK_SUCCESSFUL="true"
-		fi
-		
-		if [ "${FRAMEWORK_LINK_SUCCESSFUL}" = "false" ]; then
-			echo "Could not sucessfully link to ${FRAMEWORK}.framework. This framework must be available at one of the following locations:"
-			echo "	1) In the WebObjects Frameworks at: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-			echo "	2) In the Wonder Frameworks at: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-			echo "	3) As a Hudson job named *exactly*: ${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}"
-			exit 1
-		fi
-	done
+	if [${PROJECT} = ${PROJECT_NAME}]; then
+        FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
+        # Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
+        for FRAMEWORK in $FRAMEWORKS; do
+            FRAMEWORK_LINK_SUCCESSFUL="false"
+            echo "Framework: ${FRAMEWORK}"
+            
+            # Check to see if the Framework is a System framework (WebObjects core frameworks) by checking for it in the System frameworks path of the repository
+            echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+            if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
+                echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/"
+                (ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/)
+                FRAMEWORK_LINK_SUCCESSFUL="true"
+            fi
+    
+            # Check to see if the Framework is a WOnder framework by checking for it in the WOnder frameworks path of the repository
+            # NOTE: The same framework name can exist in both (JavaWOExtensions.framework, for example) so this is not either/or situation
+            # and we must link to both. The Local version will be used automatically by WO if it exists.
+            echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+            if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
+                echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
+                (ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
+                FRAMEWORK_LINK_SUCCESSFUL="true"
+            fi	
+    
+            # Check to see if the Framework is a Hudson-Built framework by checking for it in the Jobs directory for properly named Hudson jobs.
+            # NOTE: We may create and/or build our own version of a Wonder or System framework, so we need to check for that last too, so this
+            # Can't be an elseif, it must be an if.
+            echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
+            if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz" ]; then
+                echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
+                if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework" ]; then
+                    echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
+                else
+                    echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
+                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
+                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz
+                fi
+                echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
+                (ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
+                FRAMEWORK_LINK_SUCCESSFUL="true"
+            fi
+            
+            if [ "${FRAMEWORK_LINK_SUCCESSFUL}" = "false" ]; then
+                echo "Could not sucessfully link to ${FRAMEWORK}.framework. This framework must be available at one of the following locations:"
+                echo "	1) In the WebObjects Frameworks at: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+                echo "	2) In the Wonder Frameworks at: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+                echo "	3) As a Hudson job named *exactly*: ${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}"
+                exit 1
+            fi
+        done
+	fi
 done
 
 # Link to the woproject.jar so Ant can use it for building
