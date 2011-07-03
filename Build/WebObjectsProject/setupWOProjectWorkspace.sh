@@ -206,7 +206,7 @@ wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
 
 wolips.properties=${ROOT}/build.properties
 
-project.name=${APPLICATION_NAME}
+project.name=${PROJECT_NAME}
 
 ant.build.javac.target=${JAVA_COMPATIBILITY_VERSION}
 END
