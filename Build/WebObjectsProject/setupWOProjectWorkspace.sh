@@ -168,8 +168,8 @@ for PROJECT in $PROJECTS; do
                     echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
                 else
                     echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
-                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz
+                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
+                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz
                 fi
                 echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
                 (ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
