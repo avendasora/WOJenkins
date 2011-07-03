@@ -187,11 +187,11 @@ for PROJECT in $PROJECTS; do
 	fi
 done
 
-echo "\nLink to ${WOPROJECT} so Ant can build the WO project."
+echo "Link to ${WOPROJECT} so Ant can build the WO project."
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
-echo "\nSetup ${ROOT}/build.properties for Ant to use for building"
+echo "Setup ${ROOT}/build.properties for Ant to use for building"
 cat > ${ROOT}/build.properties << END
 wo.system.root=${ROOT}${SYSTEM_PATH_PREFIX}
 wo.system.frameworks=${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
