@@ -161,18 +161,18 @@ for PROJECT in $PROJECTS; do
             # Check to see if the Framework is a Hudson-Built framework by checking for it in the Jobs directory for properly named Hudson jobs.
             # NOTE: We may create and/or build our own version of a Wonder or System framework, so we need to check for that last too, so this
             # Can't be an elseif, it must be an if.
-            echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-            if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz" ]; then
-                echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-                if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework" ]; then
+            echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
+            if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz" ]; then
+                echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
+                if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework" ]; then
                     echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
                 else
                     echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
-                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
-                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz
+                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz"
+                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.tar.gz
                 fi
-                echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
-                (ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/Application/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
+                echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
+                (ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
                 FRAMEWORK_LINK_SUCCESSFUL="true"
             fi
             
