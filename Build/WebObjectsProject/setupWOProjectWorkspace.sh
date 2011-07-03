@@ -133,7 +133,7 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
 	echo "Project: ${PROJECT}"
-	if ["${PROJECT}"=="${PROJECT_NAME}"]; then
+	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
         FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
         # Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
         for FRAMEWORK in $FRAMEWORKS; do
