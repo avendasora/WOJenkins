@@ -21,7 +21,7 @@
 &lt;li&gt;applyWonderPatch.sh&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-          <defaultValue>https://services.wocommunity.org/wowodc/HudsonBuildFiles</defaultValue>
+          <defaultValue>git://github.com/avendasora/WOJenkins.git</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>WO_VERSION</name>
@@ -103,13 +103,17 @@
     <excludedUsers></excludedUsers>
     <excludedRevprop></excludedRevprop>
     <excludedCommitMessages></excludedCommitMessages>
-    <workspaceUpdater class="hudson.scm.subversion.CheckoutUpdater"/>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateWithCleanUpdater"/>
   </scm>
   <canRoam>true</canRoam>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector"/>
+  <triggers class="vector">
+    <hudson.triggers.SCMTrigger>
+      <spec>* */1 * * *</spec>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>

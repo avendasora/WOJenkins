@@ -30,7 +30,7 @@
         <hudson.model.StringParameterDefinition>
           <name>WONDER_REPOSITORY</name>
           <description>DEFAULT: https://github.com/projectwonder/wonder.git</description>
-          <defaultValue>https://github.com/projectwonder/wonder.git</defaultValue>
+          <defaultValue>/Users/davendasora/Documents/Projects/WOCommunity/Git Repositories/wonder</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>WONDER_BRANCH_REVISION</name>
