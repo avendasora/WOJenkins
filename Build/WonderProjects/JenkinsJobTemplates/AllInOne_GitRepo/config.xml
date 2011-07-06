@@ -101,7 +101,7 @@
           <hudson.plugins.git.UserRemoteConfig>
             <name>origin</name>
             <refspec>+refs/heads/*:refs/remotes/origin/*</refspec>
-            <url>https://github.com/daveeed/SimpleBlog.git</url>
+            <url>https://github.com/avendasora/SimpleBlog.git</url>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
         <branches>
@@ -140,7 +140,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>${WORKSPACE}/WOJenkins/Build/WonderProject/setupWonderProjectWorkspace.sh</command>
+      <command>${WORKSPACE}/WOJenkins/Build/WonderProjects/setupWonderProjectWorkspace.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Ant>
       <targets>build -verbose -propertyfile ${WORKSPACE}/Root/build.properties -lib ${WORKSPACE}/Root/lib/woproject.jar</targets>

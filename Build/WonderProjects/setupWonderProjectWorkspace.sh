@@ -50,7 +50,7 @@ PLATFORM_NAME="`uname -s`"
 
 if [ "${PLATFORM_NAME}" = "" ]; then
     echo "${SCRIPT_NAME}: Unable to access uname executable!  Terminating."
-    echo "If running on Windows, Quit it."
+    echo "If you are running on Windows, Stop it! This script isn't Windows compatible"
     exit 1	
 fi
 
