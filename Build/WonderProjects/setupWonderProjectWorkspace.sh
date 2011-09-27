@@ -3,6 +3,7 @@ ROOT=$WORKSPACE/Root
 WOPROJECT=woproject.jar
 JOB_ROOT=${WORKSPACE}/../..
 FRAMEWORKS_REPOSITORY=${HUDSON_HOME}/WOFrameworksRepository
+PROJECT_NAME=${JOB_NAME}
 
 echo "WO Revision: ${WO_VERSION}"
 echo "WOnder Version: ${WONDER_REVISION}"
