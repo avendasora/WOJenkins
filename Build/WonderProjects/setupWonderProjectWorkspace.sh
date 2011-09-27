@@ -3,7 +3,6 @@ ROOT=$WORKSPACE/Root
 WOPROJECT=woproject.jar
 JOB_ROOT=${WORKSPACE}/../..
 FRAMEWORKS_REPOSITORY=${HUDSON_HOME}/WOFrameworksRepository
-PROJECT_NAME=${JOB_NAME}
 
 echo "WO Revision: ${WO_VERSION}"
 echo "WOnder Version: ${WONDER_REVISION}"
@@ -136,7 +135,7 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
-	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
+	if [ "${PROJECT}" == "${JOB_NAME}" ]; then
         echo "${PROJECT} is the requested project."
         FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
         # Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
@@ -210,7 +209,7 @@ wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
 
 wolips.properties=${ROOT}/build.properties
 
-project.name=${PROJECT_NAME}
+project.name=${JOB_NAME}
 
 ant.build.javac.target=${JAVA_COMPATIBILITY_VERSION}
 END
