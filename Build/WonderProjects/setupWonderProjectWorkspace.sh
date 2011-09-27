@@ -129,6 +129,7 @@ mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
 
 # Get all the Projects that have been checked out as part of this deployment
 PROJECTS=`ls ${WORKSPACE}/Projects/`
+echo $PROJECTS
 
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
