@@ -127,9 +127,11 @@ mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks
 mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
 mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
 
+mv ${WORKSPACE}/Projects/Frameworks/* ${WORKSPACE}/Projects/
+mv ${WORKSPACE}/Projects/Applications/* ${WORKSPACE}/Projects/
+
 # Get all the Projects that have been checked out as part of this deployment
 PROJECTS=`ls ${WORKSPACE}/Projects/`
-echo $PROJECTS
 
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
