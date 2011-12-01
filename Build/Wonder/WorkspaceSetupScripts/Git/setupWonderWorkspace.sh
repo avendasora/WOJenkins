@@ -13,8 +13,8 @@ elif [ "$WO_VERSION" == "5.4.3" ]; then
 	WO_ALT_VERSION=54
 fi
 
-WONDER_BRANCH_DIRECTORY=${WONDER_BRANCH}
-echo "WOnder Branch Directory: ${WONDER_BRANCH_DIRECTORY}"
+WONDER_GIT_REFERENCE_DIRECTORY=${WONDER_GIT_REFERENCE}
+echo "WOnder Git Reference Directory: ${WONDER_GIT_REFERENCE_DIRECTORY}"
 
 #
 # Configure the launch environment based on the platform information.
@@ -31,9 +31,9 @@ echo "WOnder Branch Directory: ${WONDER_BRANCH_DIRECTORY}"
 PLATFORM_NAME="`uname -s`"
 
 if [ "${PLATFORM_NAME}" = "" ]; then
-    echo ${SCRIPT_NAME}: Unable to access uname executable!  Terminating.	
+    echo ${SCRIPT_NAME}: Unable to access uname executable!  Terminating.
     echo If running on Windows, Quit it.
-    exit 1	
+    exit 1
 fi
 
 case "${PLATFORM_NAME}" in
@@ -82,11 +82,11 @@ mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}
 echo "mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}"
 mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}
 
-# Look for and link to WebObjects 
+# Look for and link to WebObjects
 echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library"
 if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library" ]; then
 	echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX}"
-	(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX})	
+	(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX})
 else
 	echo "WebObjects Version ${WO_VERSION} NOT FOUND!"
 	echo "This build cannot run without it. Verify that the installWebObjects.sh script is being run and is using ${FRAMEWORKS_REPOSITORY} for its FRAMEWORKS_REPOSITORY variable."
@@ -94,14 +94,14 @@ else
 fi
 
 # Setup and link to Wonder frameworks repository directory
-echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
-if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
+echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
+if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
 	echo "This version of Wonder has already been built. I'll link to it instead of creating the directory."
 else
-	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
+	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
 fi
-echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
-(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})	
+echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
+(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})
 
 # Link to the woproject.jar so Ant can use it for building
 mkdir -p ${ROOT}/lib
