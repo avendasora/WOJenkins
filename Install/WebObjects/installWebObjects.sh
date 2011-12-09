@@ -29,7 +29,7 @@ fi
 if [ ! -e "${FRAMEWORKS_REPOSITORY}/WOProject/woproject.jar" ]; then
     echo "woproject.jar is not in the Frameworks Repository (${FRAMEWORKS_REPOSITORY}/WOProject). It will be downloaded from http://webobjects.mdimension.com/hudson/job/WOLips36Current/lastSuccessfulBuild/artifact/woproject.jar"
 	cd ${FRAMEWORKS_REPOSITORY}/WOProject/
-	curl -O http://webobjects.mdimension.com/hudson/job/WOLips36Current/lastSuccessfulBuild/artifact/woproject.jar
+	curl -O http://webobjects.mdimension.com/hudson/job/WOLips37Current/lastSuccessfulBuild/artifact/woproject.jar
 fi
 
 # Check to see if the specified version of WebObjects has been installed in the Frameworks Repository
