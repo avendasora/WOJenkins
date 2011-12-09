@@ -1,0 +1,3 @@
+[submodule "/Users/davendasora/Documents/Projects/WOCommunity/WOJenkins/Build/Wonder/JobTemplates/Git/InstallWOAndWonder"]
+	path = /Users/davendasora/Documents/Projects/WOCommunity/WOJenkins/Build/Wonder/JobTemplates/Git/InstallWOAndWonder
+	url = git@github.com:avendasora/WOJenkins_Job_InstallWOAndWOnder
