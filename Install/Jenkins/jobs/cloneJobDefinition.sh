@@ -29,4 +29,5 @@ if [ ! -e "${JENKINS_HOME}/jobs/${JOB_NAME}" ]; then
 	curl -O ${JENKINS_URL}/reload
 else
 	echo "A job already exists with the name ${JOB_NAME}. You must delete the existing job, or chose a different name."
+	exit 1
 fi
