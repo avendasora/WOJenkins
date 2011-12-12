@@ -1,6 +1,9 @@
 [submodule "Build/Wonder/JobTemplates/Git/InstallWOAndWonder"]
 	path = Build/Wonder/JobTemplates/Git/InstallWOAndWonder
 	url = git@github.com:avendasora/WOJenkins_Job_InstallWOAndWOnder
-[submodule "Build/WonderProjects/JobTemplates/Git/WOnder-Based_WOProject"]
-	path = Build/WonderProjects/JobTemplates/Git/WOnder-Based_WOProject
-	url = https://github.com/avendasora/WOJenkins_Job_WOnder-Based_WOProject
+[submodule "Build/WonderProjects/JobTemplates/Git/WOProject_Git"]
+	path = Build/WonderProjects/JobTemplates/Git/WOProject_Git
+	url = https://github.com/avendasora/WOJenkins_Job_WOProject_Git
+[submodule "Build/WonderProjects/JobTemplates/SVN/WOProject_SVN"]
+	path = Build/WonderProjects/JobTemplates/SNV/WOProject_SVN
+	url = https://github.com/avendasora/WOJenkins_Job_WOProject_SVN
