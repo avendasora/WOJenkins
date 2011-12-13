@@ -2,15 +2,16 @@
 ROOT=$WORKSPACE/Root
 WOPROJECT=woproject.jar
 JOB_ROOT=${WORKSPACE}/../..
-FRAMEWORKS_REPOSITORY=${HUDSON_HOME}/WOFrameworksRepository
+FRAMEWORKS_REPOSITORY=${JENKINS_HOME}/WOFrameworksRepository
+
+echo "Project Name: ${PROJECT_NAME}
+if [ "${DEPLOYED_APPLICATION_NAME}" == "" ]; then
+	DEPLOYED_APPLICATION_NAME="${PROJECT_NAME}"
+fi
+echo "Deployed Application Name: ${DEPLOYED_APPLICATION_NAME}"
 
 echo "WO Revision: ${WO_VERSION}"
 echo "WOnder Version: ${WONDER_REVISION}"
-
-if [ "$WORKSPACE" == "" ]; then
-	echo "You must provide a workspace setting."
-	exit 1
-fi
 
 if [ "$WO_VERSION" == "" ]; then
 	echo "You must provide a WO version."
@@ -20,53 +21,57 @@ fi
 WONDER_BRANCH_DIRECTORY=${WONDER_BRANCH}
 echo "WOnder Branch Directory: ${WONDER_BRANCH_DIRECTORY}"
 
+if [ "$WONDER_REVISION" == "" ]; then
+	WONDER_REVISION_DIRECTORY="Head"
+else
+	WONDER_REVISION_DIRECTORY=${WONDER_REVISION//@/};
+fi
+
 if [ "$BRANCHES_TAGS_TRUNK" == "trunk" ]; then
 	BRANCH_TAG_DELIMITER=""
-elif [ "$BRANCHES_TAGS_TRUNK" == "" ]; then
-	BRANCH_TAG_DELIMITER=""
 else
-	BRANCH_TAG_DELIMITER="_"
+	BRANCH_TAG_DELIMITER="_";
 fi
 
 #
 # Configure the launch environment based on the platform information.
 #
 # Expected uname values:
-#   Darwin
-#   Mac OS
-#   Rhapsody  (this is for things like JavaConverter, which need to run on Mac OS X Server 1.2)
-#   *Windows* (this prints out an error message)
-#   *winnt*   (ditto)
+#	Darwin
+#	Mac OS
+#	Rhapsody  (this is for things like JavaConverter, which need to run on Mac OS X Server 1.2)
+#	*Windows* (this prints out an error message)
+#	*winnt*	  (ditto)
 #
 # Everything else is treated as "UNIX", the default.
 #
 PLATFORM_NAME="`uname -s`"
 
 if [ "${PLATFORM_NAME}" = "" ]; then
-    echo "${SCRIPT_NAME}: Unable to access uname executable!  Terminating."
-    echo "If you are running on Windows, Stop it! This script isn't Windows compatible"
-    exit 1
+	echo "${SCRIPT_NAME}: Unable to access uname executable!  Terminating."
+	echo "If you are running on Windows, Stop it! This script isn't Windows compatible"
+	exit 1
 fi
 
 case "${PLATFORM_NAME}" in
-    "Darwin")   PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Darwin
-                ;;
-    "Mac OS")   PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Darwin
-                ;;
-    "Rhapsody") PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Rhapsody
-                ;;
-    *Windows*)  echo "Quit using Windows!  Terminating."
-                exit 1
-                ;;
-    *winnt*)    echo "Quit using Windows!  Terminating"
-                exit 1
-                ;;
-    *)          PLATFORM_DESCRIPTOR=UNIX
-                PLATFORM_TYPE=Other
-                ;;
+	"Darwin")	PLATFORM_DESCRIPTOR=MacOS
+				PLATFORM_TYPE=Darwin
+				;;
+	"Mac OS")	PLATFORM_DESCRIPTOR=MacOS
+				PLATFORM_TYPE=Darwin
+				;;
+	"Rhapsody") PLATFORM_DESCRIPTOR=MacOS
+				PLATFORM_TYPE=Rhapsody
+				;;
+	*Windows*)	echo "Quit using Windows!  Terminating."
+				exit 1
+				;;
+	*winnt*)	echo "Quit using Windows!  Terminating"
+				exit 1
+				;;
+	*)			PLATFORM_DESCRIPTOR=UNIX
+				PLATFORM_TYPE=Other
+				;;
 esac
 
 #
@@ -75,15 +80,15 @@ esac
 #
 if [ "${PLATFORM_TYPE}" = "Rhapsody" ]
 then
-    LOCAL_PATH_PREFIX=/Local
-    SYSTEM_PATH_PREFIX=/System
+	LOCAL_PATH_PREFIX=/Local
+	SYSTEM_PATH_PREFIX=/System
 elif [ "$PLATFORM_TYPE" = "Darwin" ]
 then
-    LOCAL_PATH_PREFIX=
-    SYSTEM_PATH_PREFIX=/System
+	LOCAL_PATH_PREFIX=
+	SYSTEM_PATH_PREFIX=/System
 else
-    LOCAL_PATH_PREFIX=/Local
-    SYSTEM_PATH_PREFIX=
+	LOCAL_PATH_PREFIX=/Local
+	SYSTEM_PATH_PREFIX=
 fi
 
 # Make sure the Libraries folder exists
@@ -117,9 +122,11 @@ fi
 # (This does not copy the frameworks, it just links to them so it is very fast)
 
 # Setup Directories for System and Local Frameworks
-mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks
+PROJECT_SYSTEM_FRAMEWORKS="${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks"
+PROJECT_LOCAL_FRAMEWORKS="${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks"
+mkdir -p ${PROJECT_SYSTEM_FRAMEWORKS}
+mkdir -p ${PROJECT_LOCAL_FRAMEWORKS}
 mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
-mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
 
 # Get all the Projects that have been checked out as part of this deployment
 PROJECTS=`ls ${WORKSPACE}/Projects/`
@@ -127,57 +134,62 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
-        echo "${PROJECT} is the requested project."
-        FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath  | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
-        # Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
-        for FRAMEWORK in $FRAMEWORKS; do
-            FRAMEWORK_LINK_SUCCESSFUL="false"
-            echo "Framework: ${FRAMEWORK}"
+		echo "${PROJECT} is the requested project."
+		FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath	 | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
+		# Step through each WOFramework in the .classpath and link to it in the FRAMEWORKS_REPOSITORY instead of copying it.
+		for FRAMEWORK in $FRAMEWORKS; do
+			FRAMEWORK_LINK_SUCCESSFUL="false"
+			echo "Framework: ${FRAMEWORK}"
 
-            # Check to see if the Framework is a System framework (WebObjects core frameworks) by checking for it in the System frameworks path of the repository
-            echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-            if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
-                echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/"
-                (ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks/)
-                FRAMEWORK_LINK_SUCCESSFUL="true"
-            fi
+			# Check to see if the Framework is a System framework (WebObjects core frameworks) by checking for it in the System frameworks path of the repository
+			SYSTEM_FRAMEWORK_PATH="${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+			if [ -e "${SYSTEM_FRAMEWORK_PATH}" ]; then
+				echo " Found in System Frameworks. Linking: ln -sfn ${SYSTEM_FRAMEWORK_PATH} ${PROJECT_SYSTEM_FRAMEWORKS}"
+				(ln -sfn ${SYSTEM_FRAMEWORK_PATH} ${PROJECT_SYSTEM_FRAMEWORKS})
+				FRAMEWORK_LINK_SUCCESSFUL="true"
+			else
+				echo "	Not found in System Frameworks: ${SYSTEM_FRAMEWORK_PATH}"
+			fi
 
-            # Check to see if the Framework is a WOnder framework by checking for it in the WOnder frameworks path of the repository
-            # NOTE: The same framework name can exist in both (JavaWOExtensions.framework, for example) so this is not either/or situation
-            # and we must link to both. The Local version will be used automatically by WO if it exists.
-            echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-            if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework" ]; then
-                echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
-                (ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
-                FRAMEWORK_LINK_SUCCESSFUL="true"
-            fi
+			# Check to see if the Framework is a WOnder framework by checking for it in the WOnder frameworks path of the repository
+			# NOTE: The same framework name can exist in both (JavaWOExtensions.framework, for example) so this is not either/or situation
+			# and we must link to both. The Local version will be used automatically by WO if it exists.
+			LOCAL_FRAMEWORK_PATH="${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
+			if [ -e "${LOCAL_FRAMEWORK_PATH}" ]; then
+				echo "	Found in Local Frameworks. Linking: ln -sfn ${LOCAL_FRAMEWORK_PATH} {PROJECT_LOCAL_FRAMEWORKS}"
+				(ln -sfn ${LOCAL_FRAMEWORK_PATH} {PROJECT_LOCAL_FRAMEWORKS})
+				FRAMEWORK_LINK_SUCCESSFUL="true"
+			else
+				echo "	Not found in Local Frameworks: ${LOCAL_FRAMEWORK_PATH}"
+			fi
 
-            # Check to see if the Framework is a Hudson-Built framework by checking for it in the Jobs directory for properly named Hudson jobs.
-            # NOTE: We may create and/or build our own version of a Wonder or System framework, so we need to check for that last too, so this
-            # Can't be an elseif, it must be an if.
-            echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
-            if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz" ]; then
-                echo "Look for: ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
-                if [ -e "${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework" ]; then
-                    echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
-                else
-                    echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
-                    echo "tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz"
-                    tar -C ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/ -xf ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.tar.gz
-                fi
-                echo "ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/"
-                (ln -sfn ${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework ${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks/)
-                FRAMEWORK_LINK_SUCCESSFUL="true"
-            fi
+			# Check to see if the Framework is a Hudson-Built framework by checking for it in the Jobs directory for properly named Hudson jobs.
+			# NOTE: We may create and/or build our own version of a Wonder or System framework, so we need to check for that last too, so this
+			# Can't be an elseif, it must be an if.
+			JOB_FRAMEWORK_PATH="${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist/"
+			if [ -e "${JOB_FRAMEWORK_PATH}${FRAMEWORK}.tar.gz" ]; then
+				if [ -e "${JOB_FRAMEWORK_PATH}${FRAMEWORK}.framework" ]; then
+					echo "${FRAMEWORK}.tar.gz has already been extracted. Don't extract it again, that would just be silly."
+				else
+					echo "${FRAMEWORK}.tar.gz has not been extracted. Do it."
+					echo "tar -C ${JOB_FRAMEWORK_PATH} -xf ${JOB_FRAMEWORK_PATH}${FRAMEWORK}.tar.gz"
+					tar -C ${JOB_FRAMEWORK_PATH} -xf ${JOB_FRAMEWORK_PATH}${FRAMEWORK}.tar.gz
+				fi
+				echo "ln -sfn ${JOB_FRAMEWORK_PATH}${FRAMEWORK}.framework {PROJECT_LOCAL_FRAMEWORKS}"
+				(ln -sfn ${JOB_FRAMEWORK_PATH}${FRAMEWORK}.framework {PROJECT_LOCAL_FRAMEWORKS})
+				FRAMEWORK_LINK_SUCCESSFUL="true"
+			else
+				echo "	Not found in other build jobs: ${JOB_FRAMEWORK_PATH}${FRAMEWORK}.tar.gz"
+			fi
 
-            if [ "${FRAMEWORK_LINK_SUCCESSFUL}" = "false" ]; then
-                echo "Could not sucessfully link to ${FRAMEWORK}.framework. This framework must be available at one of the following locations:"
-                echo "	1) In the WebObjects Frameworks at: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-                echo "	2) In the Wonder Frameworks at: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
-                echo "	3) As a Hudson job named *exactly*: ${FRAMEWORK}${BRANCH_TAG_DELIMITER}${APPLICATION_BRANCH_TAG}"
-                exit 1
-            fi
-        done
+			if [ "${FRAMEWORK_LINK_SUCCESSFUL}" = "false" ]; then
+				echo "Could not sucessfully link to ${FRAMEWORK}.framework. This framework must be available at one of the following locations:"
+				echo "	1) In the WebObjects Frameworks at: ${SYSTEM_FRAMEWORK_PATH}"
+				echo "	2) In the Wonder Frameworks at: ${LOCAL_FRAMEWORK_PATH}"
+				echo "	3) As a Hudson job named *exactly*: ${FRAMEWORK}${BRANCH_TAG_DELIMITER}${PROJECT_BRANCH_TAG}"
+				exit 1
+			fi
+		done
 	fi
 done
 
@@ -188,10 +200,10 @@ ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 echo "Setup ${ROOT}/build.properties for Ant to use for building"
 cat > ${ROOT}/build.properties << END
 wo.system.root=${ROOT}${SYSTEM_PATH_PREFIX}
-wo.system.frameworks=${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
+wo.system.frameworks=${PROJECT_SYSTEM_FRAMEWORKS}
 
 wo.local.root=${ROOT}${LOCAL_PATH_PREFIX}
-wo.local.frameworks=${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks
+wo.local.frameworks={PROJECT_LOCAL_FRAMEWORKS}
 
 wo.extensions=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
 
@@ -200,7 +212,7 @@ wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
 
 wolips.properties=${ROOT}/build.properties
 
-project.name=${PROJECT_NAME}
+project.name=${DEPLOYED_APPLICATION_NAME}
 
 ant.build.javac.target=${JAVA_COMPATIBILITY_VERSION}
 END
