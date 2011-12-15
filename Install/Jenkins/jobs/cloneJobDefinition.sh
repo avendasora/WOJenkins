@@ -29,9 +29,9 @@ fi
 
 # Clone the Job Definition
 if [ ! -e "${JENKINS_HOME}/jobs/${JOB_NAME}" ]; then
-    echo "git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}jobs/${JOB_NAME}"
-	(${GIT_INSTALL_DIR}/git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}jobs/${JOB_NAME})
-	if [ -e "${JENKINS_HOME}jobs/${JOB_NAME}" ]; then
+    echo "git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}/jobs/${JOB_NAME}"
+	(${GIT_INSTALL_DIR}/git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}/jobs/${JOB_NAME})
+	if [ -e "${JENKINS_HOME}/jobs/${JOB_NAME}" ]; then
 		curl -O ${JENKINS_URL}/reload
 	else
 		exit 1
