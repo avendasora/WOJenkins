@@ -22,10 +22,15 @@ else
 	exit 1
 fi
 
+GIT_INSTALL_DIR="/usr/bin/git/bin"
+if [ ! -e "/usr/local/git/bin" ]; then
+	GIT_INSTALL_DIR="/usr/local/git/bin"
+fi
+
 # Clone the Job Definition
 if [ ! -e "${JENKINS_HOME}/jobs/${JOB_NAME}" ]; then
     echo "git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}jobs/${JOB_NAME}"
-	git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}jobs/${JOB_NAME}
+	(${GIT_INSTALL_DIR}/git clone git://github.com/avendasora/${JOB_DEFINITION} ${JENKINS_HOME}jobs/${JOB_NAME})
 	if [ -e "${JENKINS_HOME}jobs/${JOB_NAME}" ]; then
 		curl -O ${JENKINS_URL}/reload
 	else
