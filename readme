@@ -1,11 +1,15 @@
-These shell scripts, when combined with their corresponding config.xml files will:
+These shell scripts, when combined with the corresponding Jenkins jobs (Jobsavailable in seperate repositories) will:
 
-1) Download and Install WebObjects in HUDSON_HOME/WOFrameworksRepository/WebObjects/
+1) Download and Install WebObjects in JENKINS_HOME/WOFrameworksRepository/WebObjects/
 
-2) Clone, Build and Install the Wonder Frameworks in HUDSON_HOME/WOFrameworksRepository/ProjectWOnder
+2) Clone, Build and Install a specified branch of Wonder Frameworks in JENKINS_HOME/WOFrameworksRepository/ProjectWOnder
 
-3) Link required WebObjects and Project Wonder frameworks to your Job's Workspace instead of copying them there (much faster)
+3) Link required WebObjects and Project Wonder frameworks to your Job's Workspace
 
 4) Build your WebObjects Framework or Application
 
-5) Deploy you WebObjects Application to a remote server running Wonder's JavaMonitor and wotaskd.
+5) Deploy you WebObjects Application to a remote server running Wonder's JavaMonitor and wotaskd.**
+
+* Jenkins job configuration files are available in seperate repositories (https://github.com/avendasora/WOJenkins_Job_InstallWOAndWOnder for example)
+
+** Needs work. Use as a guide for now, probably doesn't work without customization.
