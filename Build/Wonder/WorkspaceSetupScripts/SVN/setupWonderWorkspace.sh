@@ -120,7 +120,7 @@ mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
 # Setup wolips.properties for Ant to use for building
-cat > ${ROOT}/hudson.build.properties << END
+cat > ${ROOT}/jenkins.build.properties << END
 build.root=${ROOT}/Roots
 wonder.patch=${WO_ALT_VERSION}
 include.source=true

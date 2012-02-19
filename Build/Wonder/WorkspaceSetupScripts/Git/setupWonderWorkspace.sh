@@ -107,8 +107,12 @@ echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRE
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
+# Checkout the requested branch of WOnder from the local repository and put it in ${WORKSPACE}
+cd ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/GitRepositoryClone/git checkout
+
+
 # Setup wolips.properties for Ant to use for building
-cat > ${ROOT}/hudson.build.properties << END
+cat > ${ROOT}/jenkins.build.properties << END
 build.root=${ROOT}/Roots
 wonder.patch=${WO_ALT_VERSION}
 include.source=true
