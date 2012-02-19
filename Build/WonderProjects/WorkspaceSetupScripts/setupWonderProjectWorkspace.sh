@@ -285,3 +285,8 @@ END
 cat ${ROOT}/jenkins.build.properties.temp1 ${ROOT}/jenkins.build.properties.temp2 > ${ROOT}/jenkins.build.properties
 rm ${ROOT}/jenkins.build.properties.*
 fi
+
+# Backward Compatibility!
+echo "Create link for backward compatibility with old build.properties file name since old build jobs will still be pointing to it."
+echo "ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties"
+(ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties)

@@ -130,3 +130,8 @@ wo.extensions=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
 wo.bootstrapjar=${ROOT}${SYSTEM_PATH_PREFIX}/Library/WebObjects/JavaApplications/wotaskd.woa/WOBootstrap.jar
 wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
 END
+
+# Backward Compatibility!
+echo "Create link for backward compatibility with old build.properties file name since old build jobs will still be pointing to it."
+echo "ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties"
+(ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties)
