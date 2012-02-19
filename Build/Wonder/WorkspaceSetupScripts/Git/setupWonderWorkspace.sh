@@ -13,8 +13,8 @@ elif [ "$WO_VERSION" == "5.4.3" ]; then
 	WO_ALT_VERSION=54
 fi
 
-WONDER_GIT_REFERENCE_DIRECTORY=${WONDER_GIT_REFERENCE}
-echo "WOnder Git Reference Directory: ${WONDER_GIT_REFERENCE_DIRECTORY}"
+WONDER_SUB_PATH=${WONDER_BRANCH}
+echo "WOnder Revision Directory: ${WONDER_SUB_PATH}"
 
 #
 # Configure the launch environment based on the platform information.
@@ -94,22 +94,18 @@ else
 fi
 
 # Setup and link to Wonder frameworks repository directory
-echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
-if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
-	echo "This version of Wonder has already been built. I'll link to it instead of creating the directory."
+echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
+if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
+	echo "This version of Wonder has already been built. Skip creating it."
 else
-	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
+	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
 fi
-echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
-(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_GIT_REFERENCE_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})
+echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
+(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})
 
 # Link to the woproject.jar so Ant can use it for building
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
-
-# Checkout the requested branch of WOnder from the local repository and put it in ${WORKSPACE}
-cd ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/GitRepositoryClone/git checkout
-
 
 # Setup wolips.properties for Ant to use for building
 cat > ${ROOT}/jenkins.build.properties << END
