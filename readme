@@ -1,7 +1,6 @@
 This repository contains shell scripts for helping setup Jenkins (and probably Hudson, too) to build and deploy WebObjects applications.
 
-
-when combined with the corresponding Jenkins jobs (Jobsavailable in seperate repositories)* these scripts can:
+When combined with the corresponding Jenkins jobs (Jobs available in seperate repositories)* these scripts can:
 
 1) Apple WebObjects™: 
   a) Download either WebObjects 5.3.3 or 5.4.3 from Apple 
