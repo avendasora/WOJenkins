@@ -155,7 +155,8 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
-	PROJECT_NAME=`cat ${WORKSPACE}/Projects/${PROJECT}/.build.properties | sed -n -e 's_.*project\.name=\(.*\).*_\1_p'`
+	PROJECT_NAME=`cat ${WORKSPACE}/Projects/${PROJECT}/build.properties | sed -n -e 's_.*project\.name=\(.*\).*_\1_p'`
+	echo "Project name from build.properties : ${PROJECT_NAME}"
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
 		echo " "
 		echo "Parsing ${PROJECT}/.classpath to determine WOFramework dependencies"
