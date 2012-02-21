@@ -3,7 +3,6 @@ ROOT=$WORKSPACE/Root
 WOPROJECT=woproject.jar
 JOB_ROOT=${WORKSPACE}/../..
 FRAMEWORKS_REPOSITORY=${JENKINS_HOME}/WOFrameworksRepository
-PROJECT_NAME=`cat build.properties | sed -n -e 's_.*project\.name=\(.*\).*_\1_p'`
 
 echo "             Project Name: ${PROJECT_NAME}"
 if [ "${DEPLOYED_APPLICATION_NAME}" == "" ]; then
