@@ -266,7 +266,7 @@ wo.extensions=${WO_EXTENSIONS_FOR_THIS_BUILD}
 wo.bootstrapjar=${WO_BOOTSTRAP_JAR_FOR_THIS_BUILD}
 wo.apps.root=${WO_APPS_ROOT_FOR_THIS_BUILD}
 
-wolips.properties=${ROOT}/build.properties
+wolips.properties=${ROOT}/jenkins.build.properties
 
 project.name=${DEPLOYED_APPLICATION_NAME}
 
