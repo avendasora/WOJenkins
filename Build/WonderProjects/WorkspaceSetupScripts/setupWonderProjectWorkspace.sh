@@ -168,10 +168,28 @@ for PROJECT in $PROJECTS; do
 			FRAMEWORK_LINK_SUCCESSFUL="false"
 			echo " "
 			echo "Look For: ${FRAMEWORK}"
+			FRAMEWORK_SAME_JOB_PROJECT="${WORKSPACE}/Projects/${FRAMEWORK}"
+			FRAMEWORK_SAME_JOB_INSTALL="${WORKSPACE}/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework"
 			FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL="${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
 			FRAMEWORK_NAME_IN_WONDER_INSTALL="${WONDER_FRAMEWORKS_IN_FRAMEWORKS_REPOSITORY}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
 			JENKINS_FRAMEWORK_JOB_DIST="${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${PROJECT_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist"
 			FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB="${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.tar.gz"
+
+			# Check to see if the Framework is being built as
+			# part of the same job. Of course, the job will need
+			# to ensure that it is building things in the right
+			# sequence, i.e., dependency order.
+			if [ -e "${FRAMEWORK_SAME_JOB_PROJECT}" ]; then
+				echo "    Found in this job's Workspace/Projects directory. Assuming it will be built and installed in: ${FRAMEWORK_SAME_JOB_INSTALL}"
+				if [ ! -e "${FRAMEWORK_SAME_JOB_INSTALL}" ]; then
+					mkdir -p ${FRAMEWORK_SAME_JOB_INSTALL}
+				fi
+				echo "        Linking: ln -sfn ${FRAMEWORK_SAME_JOB_INSTALL}"
+				echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
+				FRAMEWORK_LINK_SUCCESSFUL="true"
+			else
+				echo "    Not found in this job's Workspace/Projects directory: ${FRAMEWORK_SAME_JOB_PROJECT}"
+			fi
 
 			# Check to see if the Framework is a System framework
 			# (WebObjects core frameworks) by checking for it in the
