@@ -168,8 +168,8 @@ for PROJECT in $PROJECTS; do
 			FRAMEWORK_LINK_SUCCESSFUL="false"
 			echo " "
 			echo "Look For: ${FRAMEWORK}"
-			FRAMEWORK_SAME_JOB_PROJECT="${WORKSPACE}/Projects/${FRAMEWORK}"
-			FRAMEWORK_SAME_JOB_INSTALL="${WORKSPACE}/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework"
+			FRAMEWORK_NAME_IN_SAME_JOB_PROJECT="${WORKSPACE}/Projects/${FRAMEWORK}"
+			FRAMEWORK_NAME_IN_SAME_JOB_INSTALL="${WORKSPACE}/Projects/${FRAMEWORK}/dist/${FRAMEWORK}.framework"
 			FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL="${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
 			FRAMEWORK_NAME_IN_WONDER_INSTALL="${WONDER_FRAMEWORKS_IN_FRAMEWORKS_REPOSITORY}${LOCAL_PATH_PREFIX}/Library/Frameworks/${FRAMEWORK}.framework"
 			JENKINS_FRAMEWORK_JOB_DIST="${JOB_ROOT}/${FRAMEWORK}${BRANCH_TAG_DELIMITER}${PROJECT_BRANCH_TAG}/lastSuccessful/archive/Projects/${FRAMEWORK}/dist"
@@ -179,70 +179,73 @@ for PROJECT in $PROJECTS; do
 			# part of the same job. Of course, the job will need
 			# to ensure that it is building things in the right
 			# sequence, i.e., dependency order.
-			if [ -e "${FRAMEWORK_SAME_JOB_PROJECT}" ]; then
-				echo "    Found in this job's Workspace/Projects directory. Assuming it will be built and installed in: ${FRAMEWORK_SAME_JOB_INSTALL}"
-				if [ ! -e "${FRAMEWORK_SAME_JOB_INSTALL}" ]; then
-					mkdir -p ${FRAMEWORK_SAME_JOB_INSTALL}
+			if [ -e "${FRAMEWORK_NAME_IN_SAME_JOB_PROJECT}" ]; then
+				echo "    Found in this job's Workspace/Projects directory. Assuming it will be built and installed in: ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL}"
+				if [ ! -e "${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL}" ]; then
+					echo "            ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL} doesn't yet exist, make it and link to it."
+					echo "            mkdir -p ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL}"
+					mkdir -p ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL}
 				fi
-				echo "        Linking: ln -sfn ${FRAMEWORK_SAME_JOB_INSTALL}"
+				echo "        Linking: ln -sfn ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL}"
 				echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
+				(ln -sfn ${FRAMEWORK_NAME_IN_SAME_JOB_INSTALL} ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD})
 				FRAMEWORK_LINK_SUCCESSFUL="true"
 			else
-				echo "    Not found in this job's Workspace/Projects directory: ${FRAMEWORK_SAME_JOB_PROJECT}"
-			fi
+				echo "    Not found in this job's Workspace/Projects directory: ${FRAMEWORK_NAME_IN_SAME_JOB_PROJECT}"
 
-			# Check to see if the Framework is a System framework
-			# (WebObjects core frameworks) by checking for it in the
-			# System frameworks path of the repository
-			if [ -e "${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}" ]; then
-				echo "    Found in WebObjects."
-				echo "        Linking: ln -sfn ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}"
-				echo "                         ${WO_SYSTEM_FRAMEWORKS_FOR_THIS_BUILD}"
-				(ln -sfn ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL} ${WO_SYSTEM_FRAMEWORKS_FOR_THIS_BUILD})
-				FRAMEWORK_LINK_SUCCESSFUL="true"
-			else
-				echo "    Not found in WebObjects: ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}"
-			fi
-
-			# Check to see if the Framework is a WOnder framework by
-			# checking for it in the WOnder frameworks path of the
-			# repository NOTE: The same framework name can exist in both
-			# (JavaWOExtensions.framework, for example) so this is not
-			# either/or situation and we must link to both. The Local
-			# version will be used automatically by WO if it exists.
-			if [ -e "${FRAMEWORK_NAME_IN_WONDER_INSTALL}" ]; then
-				echo "    Found in Project WOnder."
-				echo "        Linking: ln -sfn ${FRAMEWORK_NAME_IN_WONDER_INSTALL}"
-				echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
-				(ln -sfn ${FRAMEWORK_NAME_IN_WONDER_INSTALL} ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD})
-				FRAMEWORK_LINK_SUCCESSFUL="true"
-			else
-				echo "    Not found in Project WOnder: ${FRAMEWORK_NAME_IN_WONDER_INSTALL}"
-			fi
-
-			# Check to see if the Framework is a Hudson-Built framework
-			# by checking for it in the Jobs directory for properly
-			# named Hudson jobs. NOTE: We may create and/or build our
-			# own version of a Wonder or System framework, so we need to
-			# check for that last too, so this Can't be an elseif, it
-			# must be an if.
-			if [ -e "${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}" ]; then
-				echo "    Found in Jenkins Job: ${JENKINS_URL}job/${FRAMEWORK}/lastSuccessfulBuild/artifact/Projects/${FRAMEWORK}/dist"
-				echo "        ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
-				if [ -e "${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework" ]; then
-					echo "    ${FRAMEWORK}.tar.gz has already been extracted."
+				# Check to see if the Framework is a System framework
+				# (WebObjects core frameworks) by checking for it in the
+				# System frameworks path of the repository
+				if [ -e "${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}" ]; then
+					echo "    Found in WebObjects."
+					echo "        Linking: ln -sfn ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}"
+					echo "                         ${WO_SYSTEM_FRAMEWORKS_FOR_THIS_BUILD}"
+					(ln -sfn ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL} ${WO_SYSTEM_FRAMEWORKS_FOR_THIS_BUILD})
+					FRAMEWORK_LINK_SUCCESSFUL="true"
 				else
-					echo "    ${FRAMEWORK}.tar.gz has not been extracted. Extracting now."
-					echo "        tar -C ${JENKINS_FRAMEWORK_JOB_DIST}"
-					echo "            -xf ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
-					tar -C ${JENKINS_FRAMEWORK_JOB_DIST} -xf ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}
+					echo "    Not found in WebObjects: ${FRAMEWORK_NAME_IN_WEBOBJECTS_INSTALL}"
 				fi
-				echo "        Linking: ln -sfn ${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework"
-				echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
-				(ln -sfn ${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD})
-				FRAMEWORK_LINK_SUCCESSFUL="true"
-			else
-				echo "    Not found in other build job: ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
+
+				# Check to see if the Framework is a WOnder framework by
+				# checking for it in the WOnder frameworks path of the
+				# repository NOTE: The same framework name can exist in both
+				# (JavaWOExtensions.framework, for example) so this is not
+				# either/or situation and we must link to both. The Local
+				# version will be used automatically by WO if it exists.
+				if [ -e "${FRAMEWORK_NAME_IN_WONDER_INSTALL}" ]; then
+					echo "    Found in Project WOnder."
+					echo "        Linking: ln -sfn ${FRAMEWORK_NAME_IN_WONDER_INSTALL}"
+					echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
+					(ln -sfn ${FRAMEWORK_NAME_IN_WONDER_INSTALL} ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD})
+					FRAMEWORK_LINK_SUCCESSFUL="true"
+				else
+					echo "    Not found in Project WOnder: ${FRAMEWORK_NAME_IN_WONDER_INSTALL}"
+				fi
+
+				# Check to see if the Framework is a Jenkins-Built framework
+				# by checking for it in the Jobs directory for properly
+				# named Hudson jobs. NOTE: We may create and/or build our
+				# own version of a Wonder or System framework, so we need to
+				# check for that last too, so this Can't be an elseif, it
+				# must be an if.
+				if [ -e "${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}" ]; then
+					echo "    Found in Jenkins Job: ${JENKINS_URL}job/${FRAMEWORK}/lastSuccessfulBuild/artifact/Projects/${FRAMEWORK}/dist"
+					echo "        ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
+					if [ -e "${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework" ]; then
+						echo "    ${FRAMEWORK}.tar.gz has already been extracted."
+					else
+						echo "    ${FRAMEWORK}.tar.gz has not been extracted. Extracting now."
+						echo "        tar -C ${JENKINS_FRAMEWORK_JOB_DIST}"
+						echo "            -xf ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
+						tar -C ${JENKINS_FRAMEWORK_JOB_DIST} -xf ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}
+					fi
+					echo "        Linking: ln -sfn ${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework"
+					echo "                         ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD}"
+					(ln -sfn ${JENKINS_FRAMEWORK_JOB_DIST}/${FRAMEWORK}.framework ${WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD})
+					FRAMEWORK_LINK_SUCCESSFUL="true"
+				else
+					echo "    Not found in other build job: ${FRAMEWORK_ARTIFACT_PATH_IN_JENKINS_JOB}"
+				fi
 			fi
 
 			if [ "${FRAMEWORK_LINK_SUCCESSFUL}" = "false" ]; then
@@ -285,8 +288,6 @@ wo.bootstrapjar=${WO_BOOTSTRAP_JAR_FOR_THIS_BUILD}
 wo.apps.root=${WO_APPS_ROOT_FOR_THIS_BUILD}
 
 wolips.properties=${ROOT}/jenkins.build.properties
-
-project.name=${DEPLOYED_APPLICATION_NAME}
 
 ant.build.javac.target=${JAVA_COMPATIBILITY_VERSION}
 END
