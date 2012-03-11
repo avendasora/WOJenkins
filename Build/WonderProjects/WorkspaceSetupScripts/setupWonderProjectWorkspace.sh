@@ -156,8 +156,8 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 for PROJECT in $PROJECTS; do
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
 		echo " "
-		echo "Parsing ${PROJECT}/.classpath to determine WOFramework dependencies"
-		FRAMEWORKS=`cat ${WORKSPACE}/Projects/${PROJECT}/.classpath | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
+		echo "Parsing ${WORKSPACE}/Projects/**/.classpath to determine WOFramework dependencies"
+		FRAMEWORKS=`cat ${WORKSPACE}/Projects/**/.classpath | grep WOFramework/ | sed 's#.*WOFramework/\([^"]*\)"/>#\1#'`
 		echo "WOFrameworks required by ${PROJECT} :"
 		echo "$FRAMEWORKS"
 		echo "Find them and create Symbolic Links to them (much faster than copying!)"
