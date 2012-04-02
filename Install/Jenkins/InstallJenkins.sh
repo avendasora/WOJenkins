@@ -1,17 +1,21 @@
 #!/bin/bash
-#Script that downloads and installs tomcat
+#Script that downloads and installs jenkins
 #
 
 APP_DIR=/usr/local
-WOJENKINS_TOMCAT_DIR=`dirname "$0"`
 
 if [ `whoami` != "root" ]; then
 	echo "Please run as with sudo."
 	exit 1;
 fi
 
-if [[ -e $APP_DIR/tomcat ]]; then
-	echo "Tomcat is already installed."
+if [[ -d $APP_DIR/tomcat/webapps/jenkins ]]; then
+	echo "Jenkins is already installed."
+	exit 1
+fi
+
+if [[ -d $APP_DIR/tomcat/webapps/hudson ]]; then
+	echo "Jenkins is not installed, but it appears you have Hudson installed."
 	exit 1
 fi
 
@@ -62,33 +66,24 @@ if [ "$PLATFORM_TYPE" != "Darwin" ]; then
 	exit 1;
 fi
 
-
-#Get the Tomcat URL
-TOMCAT_URL=`curl -s -L http://tomcat.apache.org/download-60.cgi | grep '.tar.gz\"' | grep -v 'src' | grep -v 'deployer' | head -1 | perl -lne 'print $1 if /<a href="([^"]*)(.*)">/i;'`
-TOMCAT=`echo ${TOMCAT_URL} | perl -lne 'print $1 if /(apache-tomcat-(.*).tar.gz)$/;'`
-TOMCAT_DIR=`echo ${TOMCAT_URL} | perl -lne 'print $1 if /(apache-tomcat-(.*)).tar.gz$/;'`
-
-
-
-#Download Tomcat
-echo "Downloading Tomcat"
+#Download Jenkins
+echo "Downloading Jenkins"
 cd /tmp/
-curl ${TOMCAT_URL} -# -o ${TOMCAT}
-tar xfz ${TOMCAT}
+curl http://mirrors.jenkins-ci.org/war/latest/jenkins.war -L -# -o jenkins.war
 
-echo "Installing Tomcat"
-mv ${TOMCAT_DIR} ${APP_DIR}/tomcat
 
-if [ "$PLATFORM_TYPE" = "Darwin" ]; then
-	#Install the launchd script
-	if [ ! -a ${APP_DIR}/tomcat/bin/launchd_tomcat.sh ]; then cp $WOJENKINS_TOMCAT_DIR/launchd/launchd_tomcat.sh ${APP_DIR}/tomcat/bin/; fi
-	
-	#Install the launchd plist
-	if [ ! -a /Library/LaunchDaemons/org.apache.tomcat.plist ]; then cp $WOJENKINS_TOMCAT_DIR/launchd/org.apache.tomcat.plist /Library/LaunchDaemons/org.apache.tomcat.plist; fi
-	
-	echo "Starting Tomcat..."
+
+echo "Installing Jenkins"
+cp jenkins.war ${APP_DIR}/tomcat/webapps/
+
+if [ "$PLATFORM_TYPE" = "Darwin" ]; then	
+	echo "Restarting Tomcat..."
 	launchctl stop org.apache.tomcat
 	launchctl unload /Library/LaunchDaemons/org.apache.tomcat.plist
 	launchctl load /Library/LaunchDaemons/org.apache.tomcat.plist
 	launchctl start org.apache.tomcat
 fi
+
+#${APP_DIR}/tomcat/bin/startup.sh
+
+rm -f /tmp/jenkins.war
