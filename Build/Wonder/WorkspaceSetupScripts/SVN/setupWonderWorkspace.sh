@@ -28,6 +28,9 @@ else
 fi
 echo "WOnder Revision Directory: ${WONDER_REVISION_DIRECTORY}"
 
+WONDER_SUB_PATH=${WONDER_BRANCH}/${WONDER_REVISION_DIRECTORY}
+echo "WOnder Revision Directory: ${WONDER_SUB_PATH}"
+
 #
 # Configure the launch environment based on the platform information.
 #
@@ -43,9 +46,9 @@ echo "WOnder Revision Directory: ${WONDER_REVISION_DIRECTORY}"
 PLATFORM_NAME="`uname -s`"
 
 if [ "${PLATFORM_NAME}" = "" ]; then
-    echo ${SCRIPT_NAME}: Unable to access uname executable!  Terminating.	
+    echo ${SCRIPT_NAME}: Unable to access uname executable!  Terminating.
     echo If running on Windows, Quit it.
-    exit 1	
+    exit 1
 fi
 
 case "${PLATFORM_NAME}" in
@@ -58,10 +61,10 @@ case "${PLATFORM_NAME}" in
     "Rhapsody") PLATFORM_DESCRIPTOR=MacOS
                 PLATFORM_TYPE=Rhapsody
                 ;;
-    *Windows*)  echo Quit using Windows!  Terminating.
+    *Windows*)  echo Windows?! Really?!! Shesh. This script only works with Linux/UNIX. Terminating.
                 exit 1
                 ;;
-    *winnt*)    echo Quit using Windows!  Terminating
+    *winnt*)    echo Windows?! Really?!! Shesh. This script only works with Linux/UNIX. Terminating.
                 exit 1
                 ;;
     *)          PLATFORM_DESCRIPTOR=UNIX
@@ -94,11 +97,11 @@ mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}
 echo "mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}"
 mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}
 
-# Look for and link to WebObjects 
+# Look for and link to WebObjects
 echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library"
 if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library" ]; then
 	echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX}"
-	(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX})	
+	(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX})
 else
 	echo "WebObjects Version ${WO_VERSION} NOT FOUND!"
 	echo "This build cannot run without it. Verify that the installWebObjects.sh script is being run and is using ${FRAMEWORKS_REPOSITORY} for its FRAMEWORKS_REPOSITORY variable."
@@ -106,21 +109,21 @@ else
 fi
 
 # Setup and link to Wonder frameworks repository directory
-echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
-if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
-	echo "This version of Wonder has already been built. Link to it."
+echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
+if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
+	echo "This version of Wonder has already been built. Skip creating it."
 else
-	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
+	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
 fi
-echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
-(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH_DIRECTORY}/${WONDER_REVISION_DIRECTORY}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})	
+echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
+(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})
 
 # Link to the woproject.jar so Ant can use it for building
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
 # Setup wolips.properties for Ant to use for building
-cat > ${ROOT}/hudson.build.properties << END
+cat > ${ROOT}/jenkins.build.properties << END
 build.root=${ROOT}/Roots
 wonder.patch=${WO_ALT_VERSION}
 include.source=true
@@ -142,3 +145,8 @@ wo.extensions=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
 wo.bootstrapjar=${ROOT}${SYSTEM_PATH_PREFIX}/Library/WebObjects/JavaApplications/wotaskd.woa/WOBootstrap.jar
 wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
 END
+
+# Backward Compatibility!
+echo "Create link for backward compatibility with old build.properties file name since old build jobs will still be pointing to it."
+echo "ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties"
+(ln -sfn ${ROOT}/jenkins.build.properties ${ROOT}/build.properties)

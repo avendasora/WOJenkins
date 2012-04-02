@@ -1,11 +1,28 @@
-These shell scripts, when combined with their corresponding config.xml files will:
+This repository contains shell scripts for helping setup Jenkins (and probably Hudson, too) to build and deploy WebObjects applications.
 
-1) Download and Install WebObjects in HUDSON_HOME/WOFrameworksRepository/WebObjects/
+When combined with the corresponding Jenkins jobs (Jobs available in seperate repositories)* these scripts can:
 
-2) Clone, Build and Install the Wonder Frameworks in HUDSON_HOME/WOFrameworksRepository/ProjectWOnder
+1) Apple WebObjects™: 
+  a) Download either WebObjects 5.3.3 or 5.4.3 from Apple 
+  b) Install it in a version-specific location that will not conflict with other WebObjects installs - JENKINS_HOME/WOFrameworksRepository/WebObjects/VERSION
 
-3) Link required WebObjects and Project Wonder frameworks to your Job's Workspace instead of copying them there (much faster)
+2) Project WOnder:
+  a) Download Project WOnder source code by either
+    • SVN: Checkout Project WOnder from old SVN repository
+    • Git: Clone Project WOnder from the github.com repository
+  b) Build any revision specified by the Jenkins job (does not need to build Head of Master)
+  c) Install it in a revision-specific location so you can have several installed versions to build against - JENKINS_HOME/WOFrameworksRepository/ProjectWOnder/REVISION
+
+3) Add any frameworks required by your project (based on the .classpath file) into your project's workspace (using symbolic links)
+  a) WebObjects frameworks - based on the version specified in the Jenkins job
+  b) Project WOnder frameworks - based on the revision specified in the Jenkins job
 
 4) Build your WebObjects Framework or Application
+  a) SVN: script is complete and working
+  b) Git: could possibly use SVN script - but hasn't been specifically verified.
 
-5) Deploy you WebObjects Application to a remote server running Wonder's JavaMonitor and wotaskd.
+5) Deploy you WebObjects Application to a remote server running Wonder's JavaMonitor and wotaskd.**
+
+* Jenkins job configuration files are available in seperate repositories (https://github.com/avendasora/WOJenkins_Job_InstallWOAndWOnder for example)
+
+** Needs work. Use as a guide for now, probably doesn't work without customization.
