@@ -69,11 +69,17 @@ TOMCAT=`echo ${TOMCAT_URL} | perl -lne 'print $1 if /(apache-tomcat-(.*).tar.gz)
 TOMCAT_DIR=`echo ${TOMCAT_URL} | perl -lne 'print $1 if /(apache-tomcat-(.*)).tar.gz$/;'`
 
 
-
 #Download Tomcat
 echo "Downloading Tomcat"
 cd /tmp/
 curl ${TOMCAT_URL} -# -o ${TOMCAT}
+
+if [[ ! -e "/tmp/${TOMCAT}" || "${TOMCAT}" == "" ]]; then
+	echo "Theres was an error with the download."
+	echo "Please try again."
+	exit 1
+fi
+
 tar xfz ${TOMCAT}
 
 echo "Installing Tomcat"

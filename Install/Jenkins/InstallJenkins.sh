@@ -71,12 +71,23 @@ echo "Downloading Jenkins"
 cd /tmp/
 curl http://mirrors.jenkins-ci.org/war/latest/jenkins.war -L -# -o jenkins.war
 
-
+#check download
+if [[ ! -e "/tmp/jenkins.war" ]]; then
+	echo "Theres was an error with the download."
+	echo "Please try again."
+	exit 1
+fi
 
 echo "Installing Jenkins"
-cp jenkins.war ${APP_DIR}/tomcat/webapps/
+mv jenkins.war ${APP_DIR}/tomcat/webapps/
 
 if [ "$PLATFORM_TYPE" = "Darwin" ]; then	
+	#Check if launchd has the plist for tomcat
+	if [ ! -a /Library/LaunchDaemons/org.apache.tomcat.plist ]; then 
+		echo "Launchd doesn't appear to be configured for tomcat"
+		exit 1;
+	fi
+
 	echo "Restarting Tomcat..."
 	launchctl stop org.apache.tomcat
 	launchctl unload /Library/LaunchDaemons/org.apache.tomcat.plist
@@ -84,6 +95,3 @@ if [ "$PLATFORM_TYPE" = "Darwin" ]; then
 	launchctl start org.apache.tomcat
 fi
 
-#${APP_DIR}/tomcat/bin/startup.sh
-
-rm -f /tmp/jenkins.war
