@@ -1,8 +1,8 @@
 #!/bin/bash
-ROOT=$WORKSPACE/Root
-WOPROJECT=woproject.jar
-JOB_ROOT=${WORKSPACE}/../..
-FRAMEWORKS_REPOSITORY=${HUDSON_HOME}/WOFrameworksRepository
+ROOT="$WORKSPACE/Root"
+WOPROJECT="woproject.jar"
+JOB_ROOT="${WORKSPACE}/../.."
+FRAMEWORKS_REPOSITORY="${JENKINS_HOME}/WOFrameworksRepository"
 
 echo "WO Version: ${WO_VERSION}"
 
@@ -10,14 +10,11 @@ if [ "$WO_VERSION" == "" ]; then
 	echo "You must provide a WO_VERSION."
 	exit 1
 elif [ "$WO_VERSION" == "5.4.3" ]; then
-	WO_ALT_VERSION=54
+	WO_ALT_VERSION="54"
 fi
 
-WONDER_SUB_PATH=${WONDER_BRANCH}
-echo "WOnder Revision Directory: ${WONDER_SUB_PATH}"
-
 #
-# Configure the launch environment based on the platform information.
+# Configure the environment based on the platform information.
 #
 # Expected uname values:
 #   Darwin
@@ -37,98 +34,121 @@ if [ "${PLATFORM_NAME}" = "" ]; then
 fi
 
 case "${PLATFORM_NAME}" in
-    "Darwin")   PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Darwin
+    "Darwin")   PLATFORM_DESCRIPTOR="MacOS"
+                	  PLATFORM_TYPE="Darwin"
                 ;;
-    "Mac OS")   PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Darwin
+    "Mac OS")   PLATFORM_DESCRIPTOR="MacOS"
+                	  PLATFORM_TYPE="Darwin"
                 ;;
-    "Rhapsody") PLATFORM_DESCRIPTOR=MacOS
-                PLATFORM_TYPE=Rhapsody
+    "Rhapsody") PLATFORM_DESCRIPTOR="MacOS"
+                	  PLATFORM_TYPE="Rhapsody"
                 ;;
-    *Windows*)  echo Windows?! Really?!! Shesh. This script only works with Linux/UNIX. Terminating.
+    *Windows*)  echo "Windows?! Really?!! Shesh. This script only works with MacOS/Linux/UNIX. Terminating."
                 exit 1
                 ;;
-    *winnt*)    echo Windows?! Really?!! Shesh. This script only works with Linux/UNIX. Terminating.
+    *winnt*)    echo "Windows?! Really?!! Shesh. This script only works with MacOS/Linux/UNIX. Terminating."
                 exit 1
                 ;;
-    *)          PLATFORM_DESCRIPTOR=UNIX
-                PLATFORM_TYPE=Other
+    *)          PLATFORM_DESCRIPTOR="UNIX"
+                	  PLATFORM_TYPE="Other"
                 ;;
 esac
 
 #
-# Depending upon the platform, provide default values for the path
-# abstractions (we call these values "shorthands").
+# Depending upon the platform, provide default values for the path abstractions
 #
 if [ "${PLATFORM_TYPE}" = "Rhapsody" ]; then
-    LOCAL_PATH_PREFIX=/Local
-    SYSTEM_PATH_PREFIX=/System
+    LOCAL_PATH_PREFIX="/Local"
+    SYSTEM_PATH_PREFIX="/System"
 elif [ "$PLATFORM_TYPE" = "Darwin" ]; then
-    LOCAL_PATH_PREFIX=
-    SYSTEM_PATH_PREFIX=/System
+    LOCAL_PATH_PREFIX=""
+    SYSTEM_PATH_PREFIX="/System"
 else
-    LOCAL_PATH_PREFIX=/Local
-    SYSTEM_PATH_PREFIX=
+    LOCAL_PATH_PREFIX="/Local"
+    SYSTEM_PATH_PREFIX=""
 fi
 
-# Make sure the Libraries folder exists
+# Create variables for the build's WO_SYSTEM_ROOT and WO_LOCAL_ROOT
+WO_SYSTEM_ROOT_FOR_THIS_BUILD="${ROOT}${SYSTEM_PATH_PREFIX}"
+ WO_LCOAL_ROOT_FOR_THIS_BUILD="${ROOT}${LOCAL_PATH_PREFIX}"
+
+# Since we are only setting up the workspace for building Project WOnder,
+# we can simply link to the System and Local Library directories instead
+# of directly to the Frameworks directories as that will allow us to
+# setup the workspace with just two symlinks instead of needing one for
+# every Framework as is done in the setupWonderProjectWorkspace.sh script.
+							   WONDER_SUB_PATH="${WONDER_BRANCH}"
+	  WEBOBJECTS_ROOT_IN_FRAMEWORKS_REPOSITORY="${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}"
+   WEBOBJECTS_LIBRARY_IN_FRAMEWORKS_REPOSITORY="${WEBOBJECTS_ROOT_IN_FRAMEWORKS_REPOSITORY}/Library"
+		  WONDER_ROOT_IN_FRAMEWORKS_REPOSITORY="${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_BRANCH}/${WO_VERSION}"
+	   WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY="${WONDER_ROOT_IN_FRAMEWORKS_REPOSITORY}/Library"
+
+# Make sure the Workspace Libraries folder exists
 mkdir -p ${WORKSPACE}/Libraries
 
 # Setup Root
 rm -rf ${ROOT}
-echo "mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}"
-mkdir -p ${ROOT}${LOCAL_PATH_PREFIX}
-echo "mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}"
-mkdir -p ${ROOT}${SYSTEM_PATH_PREFIX}
+echo "mkdir -p ${WO_LCOAL_ROOT_FOR_THIS_BUILD}"
+mkdir -p ${WO_LOCAL_ROOT_FOR_THIS_BUILD}
+echo "mkdir -p ${WO_SYSTEM_ROOT_FOR_THIS_BUILD}"
+mkdir -p ${WO_SYSTEM_ROOT_FOR_THIS_BUILD}
 
-# Look for and link to WebObjects
-echo "Look for: ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library"
-if [ -e "${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library" ]; then
-	echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX}"
-	(ln -sfn ${FRAMEWORKS_REPOSITORY}/WebObjects/${WO_VERSION}${SYSTEM_PATH_PREFIX}/Library ${ROOT}${SYSTEM_PATH_PREFIX})
+# Setup link to WebObjects Frameworks
+# We are using symlinks instead of copying the Frameworks
+# to make setting up the workspace much faster and so there
+# is much less redundant files taking up space in the job
+# workspace directories.
+echo "Look for: ${WEBOBJECTS_LIBRARY_IN_FRAMEWORKS_REPOSITORY}"
+if [ -e "${WEBOBJECTS_LIBRARY_IN_FRAMEWORKS_REPOSITORY}" ]; then
+	echo "Use WebObject's Library directory as the System Library directory"
+	echo "ln -sfn ${WEBOBJECTS_LIBRARY_IN_FRAMEWORKS_REPOSITORY}"
+	echo "        ${WO_SYSTEM_ROOT_FOR_THIS_BUILD}"
+	(ln -sfn ${WEBOBJECTS_LIBRARY_IN_FRAMEWORKS_REPOSITORY} ${WO_SYSTEM_ROOT_FOR_THIS_BUILD})
 else
 	echo "WebObjects Version ${WO_VERSION} NOT FOUND!"
-	echo "This build cannot run without it. Verify that the installWebObjects.sh script is being run and is using ${FRAMEWORKS_REPOSITORY} for its FRAMEWORKS_REPOSITORY variable."
+	echo "This build cannot run without it. Verify that the installWebObjects.sh script is being run and"
+	echo "is using ${FRAMEWORKS_REPOSITORY} for its FRAMEWORKS_REPOSITORY variable."
 	exit 1
 fi
-
-# Setup and link to Wonder frameworks repository directory
-echo "Look for: ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library"
-if [ -e "${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library" ]; then
-	echo "This version of Wonder has already been built. Skip creating it."
-else
-	mkdir -p ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library
-fi
-echo "ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX}"
-(ln -sfn ${FRAMEWORKS_REPOSITORY}/ProjectWOnder/${WONDER_SUB_PATH}/${WO_VERSION}${LOCAL_PATH_PREFIX}/Library ${ROOT}${LOCAL_PATH_PREFIX})
 
 # Link to the woproject.jar so Ant can use it for building
 mkdir -p ${ROOT}/lib
 ln -sf ${FRAMEWORKS_REPOSITORY}/WOProject/${WOPROJECT} ${ROOT}/lib/${WOPROJECT}
 
-# Setup wolips.properties for Ant to use for building
+# Setup jenkins.build.properties for Ant to use for building
+# You must pass -propertyfile \$\{WORKSPACE\}/Root/jenkins.build.properties as
+# an argument of the ant build command in the Jenkins job configuration.
 cat > ${ROOT}/jenkins.build.properties << END
+# DO NOT EDIT THIS FILE!!!
+#
+# This file was dynamically generated by
+# ${WORKSPACE}/WOJenkins/Build/Wonder/WorkspaceSetupScripts/setupWonderWorkspace.sh
+# based on values defined in the "${JOB_NAME}" Jenkins job and will be overwritten the next time
+# the job is run.
+#
+# Changes to the job can be made by opening ${JOB_URL}/configure in a web browser.
+
 build.root=${ROOT}/Roots
 wonder.patch=${WO_ALT_VERSION}
 include.source=true
 
-wonder.framework.install.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks
-web.framework.install.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebServer/Documents/WebObjects/Frameworks
+wonder.framework.install.root=${WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY}/Frameworks
+wonder.application.install.root=${WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY}/WebObjects/Applications
+wonder.jar.install.root=${WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY}/WebObjects/lib/
 
-wonder.application.install.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
-web.application.install.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebServer/Documents/WebObjects
+web.framework.install.root=${WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY}/WebServer/Documents/WebObjects/Frameworks
+web.application.install.root=${WONDER_LIBRARY_IN_FRAMEWORKS_REPOSITORY}/WebServer/Documents/WebObjects
 
-wo.local.root=${ROOT}${LOCAL_PATH_PREFIX}
-wo.local.frameworks=${ROOT}${LOCAL_PATH_PREFIX}/Library/Frameworks
+wo.local.root=${WO_LOCAL_ROOT_FOR_THIS_BUILD}
+wo.local.frameworks=${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/Frameworks
 
-wo.system.root=${ROOT}${SYSTEM_PATH_PREFIX}
-wo.system.frameworks=${ROOT}${SYSTEM_PATH_PREFIX}/Library/Frameworks
+wo.system.root=${WO_SYSTEM_ROOT_FOR_THIS_BUILD}
+wo.system.frameworks=${WO_SYSTEM_ROOT_FOR_THIS_BUILD}/Library/Frameworks
 
-wo.extensions=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Extensions
+wo.extensions=${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Extensions
 
-wo.bootstrapjar=${ROOT}${SYSTEM_PATH_PREFIX}/Library/WebObjects/JavaApplications/wotaskd.woa/WOBootstrap.jar
-wo.apps.root=${ROOT}${LOCAL_PATH_PREFIX}/Library/WebObjects/Applications
+wo.bootstrapjar=${WO_SYSTEM_ROOT_FOR_THIS_BUILD}/Library/WebObjects/JavaApplications/wotaskd.woa/WOBootstrap.jar
+wo.apps.root=${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Applications
 END
 
 # Backward Compatibility!
