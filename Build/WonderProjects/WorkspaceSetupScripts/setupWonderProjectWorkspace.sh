@@ -101,10 +101,10 @@ WEBOBJECTS_FRAMEWORKS_IN_FRAMEWORKS_REPOSITORY="${WEBOBJECTS_ROOT_IN_FRAMEWORKS_
 			  WO_JAVA_APPS_ROOT_FOR_THIS_BUILD="${WO_SYSTEM_ROOT_FOR_THIS_BUILD}/Library/WebObjects/JavaApplications"
 			   WO_BOOTSTRAP_JAR_FOR_THIS_BUILD="${WO_JAVA_APPS_ROOT_FOR_THIS_BUILD}/wotaskd.woa/WOBootstrap.jar"
 
-				  WO_LCOAL_ROOT_FOR_THIS_BUILD="${ROOT}${LOCAL_PATH_PREFIX}"
-			WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD="${WO_LCOAL_ROOT_FOR_THIS_BUILD}/Library/Frameworks"
-				  WO_EXTENSIONS_FOR_THIS_BUILD="${WO_LCOAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Extensions"
-				   WO_APPS_ROOT_FOR_THIS_BUILD="${WO_LCOAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Applications"
+				  WO_LOCAL_ROOT_FOR_THIS_BUILD="${ROOT}${LOCAL_PATH_PREFIX}"
+			WO_LOCAL_FRAMEWORKS_FOR_THIS_BUILD="${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/Frameworks"
+				  WO_EXTENSIONS_FOR_THIS_BUILD="${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Extensions"
+				   WO_APPS_ROOT_FOR_THIS_BUILD="${WO_LOCAL_ROOT_FOR_THIS_BUILD}/Library/WebObjects/Applications"
 
 
 # Make sure the Libraries folder exists
@@ -283,6 +283,8 @@ cat > ${ROOT}/jenkins.build.properties << END
 # the job is run.
 #
 # Changes to the job can be made by opening ${JOB_URL}/configure in a web browser.
+
+project.name=${PROJECT_NAME}
 
 wo.system.root=${WO_SYSTEM_ROOT_FOR_THIS_BUILD}
 wo.system.frameworks=${WO_SYSTEM_FRAMEWORKS_FOR_THIS_BUILD}
