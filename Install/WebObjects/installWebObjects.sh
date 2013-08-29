@@ -20,9 +20,9 @@ mkdir -p ${FRAMEWORKS_REPOSITORY}/WOProject
 
 # Check to see if the WOInstaller.jar has been put in the Frameworks Repository
 if [ ! -e "${FRAMEWORKS_REPOSITORY}/WebObjects/WOInstaller.jar" ]; then
-    echo "WOInstaller.jar is not in the Frameworks Repository (${FRAMEWORKS_REPOSITORY}/WebObjects). It will be downloaded from http://webobjects.mdimension.com/wolips/WOInstaller.jar"
+    echo "WOInstaller.jar is not in the Frameworks Repository (${FRAMEWORKS_REPOSITORY}/WebObjects). It will be downloaded from http://wocommunity.org/documents/tools/WOInstaller.jar"
 	cd ${FRAMEWORKS_REPOSITORY}/WebObjects/
-	curl -O http://webobjects.mdimension.com/wolips/WOInstaller.jar
+	curl -O http://wocommunity.org/documents/tools/WOInstaller.jar
 fi
 
 # Check to see if the woproject.jar has been put in the Frameworks Repository
