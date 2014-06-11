@@ -70,7 +70,7 @@ fi
 
 # Create variables for the build's WO_SYSTEM_ROOT and WO_LOCAL_ROOT
 WO_SYSTEM_ROOT_FOR_THIS_BUILD="${ROOT}${SYSTEM_PATH_PREFIX}"
- WO_LCOAL_ROOT_FOR_THIS_BUILD="${ROOT}${LOCAL_PATH_PREFIX}"
+ WO_LOCAL_ROOT_FOR_THIS_BUILD="${ROOT}${LOCAL_PATH_PREFIX}"
 
 # Since we are only setting up the workspace for building Project WOnder,
 # we can simply link to the System and Local Library directories instead
@@ -88,7 +88,7 @@ mkdir -p ${WORKSPACE}/Libraries
 
 # Setup Root
 rm -rf ${ROOT}
-echo "mkdir -p ${WO_LCOAL_ROOT_FOR_THIS_BUILD}"
+echo "mkdir -p ${WO_LOCAL_ROOT_FOR_THIS_BUILD}"
 mkdir -p ${WO_LOCAL_ROOT_FOR_THIS_BUILD}
 echo "mkdir -p ${WO_SYSTEM_ROOT_FOR_THIS_BUILD}"
 mkdir -p ${WO_SYSTEM_ROOT_FOR_THIS_BUILD}
