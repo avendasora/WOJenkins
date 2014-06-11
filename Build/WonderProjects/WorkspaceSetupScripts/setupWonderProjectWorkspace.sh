@@ -152,6 +152,11 @@ mkdir -p ${WO_EXTENSIONS_FOR_THIS_BUILD}
 # Get all the Projects that have been checked out as part of this job
 PROJECTS=`ls ${WORKSPACE}/Projects/`
 
+# Make sure that the Sources and Libraries directories exist, woproject requires them, 
+# but if they are empty, then Git will have not included them in the repository.
+mkdir -p ${WORKSPACE}/Projects/${PROJECT_NAME}/Sources
+mkdir -p ${WORKSPACE}/Projects/${PROJECT_NAME}/Libraries
+
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
