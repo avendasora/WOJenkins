@@ -157,6 +157,12 @@ PROJECTS=`ls ${WORKSPACE}/Projects/`
 mkdir -p ${WORKSPACE}/Projects/${PROJECT_NAME}/Sources
 mkdir -p ${WORKSPACE}/Projects/${PROJECT_NAME}/Libraries
 
+
+# Clean out any existing builds, just in case the git checkout didn't
+rm -rf ${WORKSPACE}/Projects/${PROJECT_NAME}/dist
+rm -rf ${WORKSPACE}/Projects/${PROJECT_NAME}/bin
+
+
 # Step through them to get the list of WO frameworks on their Classpath.
 for PROJECT in $PROJECTS; do
 	if [ "${PROJECT}" == "${PROJECT_NAME}" ]; then
