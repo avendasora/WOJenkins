@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>Disabled</key>
+        <false/>
+        <key>EnvironmentVariables</key>
+        <dict>
+                <key>CATALINA_HOME</key><string>/usr/local/tomcat</string>
+                <key>JAVA_HOME</key><string>/System/Library/Frameworks/JavaVM.framework/Home</string>
+		<key>CATALINA_BASE</key><string>/usr/local/tomcat</string>
+		<key>CATALINA_TMPDIR</key><string>/usr/local/tomcat/temp</string>
+		<key>JRE_HOME</key><string>/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home</string>
+		<key>CLASSPATH</key><string>/usr/local/tomcat/bin/bootstrap.jar</string>
+		<key>JENKINS_HOME</key><string>/Library/Jenkins</string>
+		<key>JAVA_OPTS</key><string>"-Djava.awt.headless=true"</string>
+        </dict>
+        <key>Label</key><string>org.apache.tomcat</string>
+        <key>OnDemand</key><false/>
+        <key>ProgramArguments</key>
+        <array>
+                <string>/usr/local/tomcat/bin/launchd_tomcat.sh</string>
+        </array>
+        <key>RunAtLoad</key><true/>
+        <key>ServiceDescription</key><string>Apache Tomcat</string>
+        <key>StandardErrorPath</key><string>usr/local/tomcat/logs/launchd.stderr</string>
+        <key>StandardOutPath</key><string>usr/local/tomcat/logs/launchd.stdout</string>
+        <key>UserName</key><string>root</string>
+</dict>
+</plist>
+

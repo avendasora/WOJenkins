@@ -1,0 +1,90 @@
+#!/bin/bash
+
+REPOS="$1"
+THE_APP_NAME=`git diff -n 1 --name-only HEAD@{1} HEAD | head -n 1 | perl -lne 'print $1 if /([^\/]*)/i;'`
+JENKINS_URL=http://localhost:8080/jenkins
+JENKINS_CLI=/usr/local/tomcat/webapps/jenkins/WEB-INF/jenkins-cli.jar
+JENKINS_USER=admin
+JENKINS_PW=wolips
+MYSQL=/usr/local/mysql/bin/mysql
+MYSQL_USER=webobjects
+MYSQL_PASS=8ZVujsgq4jCivQxenDDA
+THE_HOST_NAME=`hostname`
+JAVAMONITOR_PORT="56789"
+HTTP=http
+WEBAPP_LOCATION=/Library/WebObjects/Applications
+WEBSERVER_LOCATION=/Library/WebServer/Documents
+#JAVAMONITOR_URL=${HTTP}://${THE_HOST_NAME}:${JAVAMONITOR_PORT}/cgi-bin/WebObjects/JavaMonitor.woa
+JAVAMONITOR_URL=${HTTP}://${THE_HOST_NAME}/WOMonitor
+JAVAMONITOR_PW=wolips
+EMAIL_ADDRESS=ted.archibald@gmail.com
+
+if [ "${THE_APP_NAME}" != "." ] ; then
+	
+	if [ "${THE_APP_NAME}" == "Configurations" ] ; then
+		java -jar ${JENKINS_CLI} -s ${JENKINS_URL} build UpdateConfigurations --username $JENKINS_USER --password $JENKINS_PW
+	else
+	
+		#If Application
+		PROJECT_TYPE=`git show master:${THE_APP_NAME}/build.properties | grep project.type`
+		if [ "${PROJECT_TYPE}" == "project.type=application" ] ; then
+		
+			#Create Database
+			DB_EXISTS=`${MYSQL} -e "show databases" -u${MYSQL_USER} -p${MYSQL_PASS} | grep "^${THE_APP_NAME}$"`
+			if [ "${DB_EXISTS}" != "${THE_APP_NAME}" ] ; then
+				${MYSQL} -e "Create Database ${THE_APP_NAME}" -u${MYSQL_USER} -p${MYSQL_PASS}
+			fi
+		
+			echo "Debug 1, " > /tmp/debug.txt
+			echo -e "\nRewriteRule ^${THE_APP_NAME}/(.*)\$ /cgi-bin/WebObjects/${THE_APP_NAME}.woa/\$1 [NC,PT,L]\nRewriteRule ^${THE_APP_NAME}$ /cgi-bin/WebObjects/${THE_APP_NAME}.woa [NC,PT,L]\n" >> /tmp/debug.txt
+			#echo "${THE_APP_NAME}" >> /tmp/debug.txt
+			#cat ${WEBSERVER_LOCATION}/.htaccess >> /tmp/debug.txt
+			#Add rewrite in htaccess file
+			HAS_HTACCESS_ENTRY=`cat ${WEBSERVER_LOCATION}/.htaccess | grep "/cgi-bin/WebObjects/${THE_APP_NAME}.woa " | cut -c1-11`
+			if [ "${HAS_HTACCESS_ENTRY}" != "RewriteRule" ] ; then 
+			
+				echo -e "RewriteRule ^${THE_APP_NAME}/([0-9]*/)?(?!(?:[0-9]*/)?ajax/|(?:[0-9]*/)?wis/|(?:[0-9]*/)?_wr_/|(?:[0-9]*/)?_sl_/|(?:[0-9]*/)?wa/|(?:[0-9]*/)?ra/|(?:[0-9]*/)?womp/|(?:[0-9]*/)?ja/|(?:[0-9]*/)?wo/|(?:[0-9]*/)?push/|(?:[0-9]*/)?wr/|(?:[0-9]*/)?ws/|(?:[0-9]*/)?erxadm/|(?:[0-9]*/?)?\$)(.*)\$ /cgi-bin/WebObjects/${THE_APP_NAME}.woa/\$1ra/\$2 [NC,PT,L]\nRewriteRule ^${THE_APP_NAME}/([0-9]*/)?(ajax/|wis/|_wr_/|_sl_/|wa/|ra/|womp/|ja/|wo/|push/|wr/|ws/|erxadm/|(?:[0-9]*/))(.*)\$ /cgi-bin/WebObjects/${THE_APP_NAME}.woa/\$1\$2\$3 [NC,PT,L]\nRewriteRule ^${THE_APP_NAME}(/[0-9]*)?\$ /cgi-bin/WebObjects/${THE_APP_NAME}.woa [NC,PT,L]" >> ${WEBSERVER_LOCATION}/.htaccess
+		
+			fi
+		
+			#Create the job in jenkins
+			HAS_JENKINS_JOB=`java -jar ${JENKINS_CLI} -s ${JENKINS_URL} enable-job ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW 2>&1 | grep "No such job" | cut -c1-11`
+			if [ "${HAS_JENKINS_JOB}" == "No such job" ] ; then
+				#Create Jenkins Job App
+				DEPLOY_TYPE="/Library/Jenkins/Dependencies/deployWOApp.sh -p wolips -P 80"
+				echo -e "<?xml version='1.0' encoding='UTF-8'?>\n<project>\n  <actions/>\n  <description></description>\n  <logRotator>\n    <daysToKeep>-1</daysToKeep>\n    <numToKeep>5</numToKeep>\n    <artifactDaysToKeep>-1</artifactDaysToKeep>\n    <artifactNumToKeep>-1</artifactNumToKeep>\n  </logRotator>\n  <keepDependencies>false</keepDependencies>\n  <properties/>\n  <scm class=\"hudson.scm.SubversionSCM\">\n    <locations>\n      <hudson.scm.SubversionSCM_-ModuleLocation>\n        <remote>http://woserver.archtransco.com/svn/${THE_APP_NAME}/trunk</remote>\n        <local>.</local>\n      </hudson.scm.SubversionSCM_-ModuleLocation>\n    </locations>\n    <useUpdate>true</useUpdate>\n    <doRevert>false</doRevert>\n    <excludedRegions></excludedRegions>\n    <excludedUsers></excludedUsers>\n    <excludedRevprop></excludedRevprop>\n    <excludedCommitMessages></excludedCommitMessages>\n  </scm>\n  <canRoam>true</canRoam>\n  <disabled>false</disabled>\n  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>\n  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>\n  <triggers class=\"vector\"/>\n  <concurrentBuild>false</concurrentBuild>\n  <builders>\n    <hudson.tasks.Shell>\n      <command>/Library/Jenkins/Dependencies/setupWorkspace.sh &quot;\$WORKSPACE&quot; 54</command>\n    </hudson.tasks.Shell>\n    <hudson.tasks.Ant>\n      <targets>-propertyfile \${WORKSPACE}/Root/wolips.properties  -lib \${WORKSPACE}/Root/lib clean build</targets>\n    </hudson.tasks.Ant>\n  </builders>\n  <publishers>\n    <hudson.tasks.ArtifactArchiver>\n      <artifacts>dist/*.tar.gz</artifacts>\n      <latestOnly>false</latestOnly>\n    </hudson.tasks.ArtifactArchiver>\n   <hudson.plugins.postbuildtask.PostbuildTask>\n      <tasks>\n        <hudson.plugins.postbuildtask.TaskProperties>\n          <logTexts>\n            <hudson.plugins.postbuildtask.LogProperties>\n              <logText>BUILD SUCCESSFUL</logText>\n              <operator>AND</operator>\n            </hudson.plugins.postbuildtask.LogProperties>\n          </logTexts>\n          <EscalateStatus>false</EscalateStatus>\n          <RunIfJobSuccessful>false</RunIfJobSuccessful>\n          <script>${DEPLOY_TYPE}</script>\n        </hudson.plugins.postbuildtask.TaskProperties>\n      </tasks>\n    </hudson.plugins.postbuildtask.PostbuildTask>\n    <hudson.tasks.Mailer>\n      <recipients>${EMAIL_ADDRESS}</recipients>\n      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>\n      <sendToIndividuals>false</sendToIndividuals>\n    </hudson.tasks.Mailer>\n    <hudson.plugins.emotional__hudson.EmotionalHudsonPublisher/>\n  </publishers>\n  <buildWrappers/>\n</project>\n" | java -jar ${JENKINS_CLI} -s ${JENKINS_URL} create-job ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW
+			fi
+		
+			#If the project is an app, then create a new app in WOMonitor
+			APP_EXISTS=`curl -s "${JAVAMONITOR_URL}/admin/running?type=app&name=${THE_APP_NAME}&pw=${JAVAMONITOR_PW}"`
+			if [ "${APP_EXISTS}" == "running action failed: Unknown application ${THE_APP_NAME}" ] ; then
+				#add new app
+				curl -X POST -d "{id: '${THE_APP_NAME}',type: 'MApplication', name: '${THE_APP_NAME}', additionalArgs:'-Duser.name=deploy -Der.extensions.ERXApplication.replaceApplicationPath.pattern=/cgi-bin/WebObjects/${THE_APP_NAME}.woa -Der.extensions.ERXApplication.replaceApplicationPath.replace=/${THE_APP_NAME}', macOutputPath: '/Library/Logs/WebObjects', macPath: '/Library/WebObjects/Applications/${THE_APP_NAME}.woa/${THE_APP_NAME}', unixOutputPath: '/Library/Logs/WebObjects', unixPath: '/Library/WebObjects/Applications/${THE_APP_NAME}.woa/${THE_APP_NAME}'}" "${JAVAMONITOR_URL}/ra/mApplications.json?&pw=${JAVAMONITOR_PW}"
+				#add new instance
+				curl -X GET "${JAVAMONITOR_URL}/ra/mApplications/${THE_APP_NAME}/addInstance?host=localhost&pw=${JAVAMONITOR_PW}"
+			fi
+		
+			#Build it
+			#curl "${JENKINS_URL}/job/${THE_APP_NAME}/build?delay=0sec"
+			java -jar ${JENKINS_CLI} -s ${JENKINS_URL} build ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW
+		
+		
+		elif [ "${PROJECT_TYPE}" == "project.type=framework" ] ; then
+			#Create Jenkins Job Framework
+			HAS_JENKINS_JOB=`java -jar ${JENKINS_CLI} -s ${JENKINS_URL} enable-job ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW 2>&1 | grep "No such job" | cut -c1-11`
+			if [ "${HAS_JENKINS_JOB}" == "No such job" ] ; then
+				#Create Jenkins Job Framework
+				DEPLOY_TYPE="/Library/Jenkins/Dependencies/deployWOFramework.sh"
+				echo -e "<?xml version='1.0' encoding='UTF-8'?>\n<project>\n  <actions/>\n  <description></description>\n  <logRotator>\n    <daysToKeep>-1</daysToKeep>\n    <numToKeep>5</numToKeep>\n    <artifactDaysToKeep>-1</artifactDaysToKeep>\n    <artifactNumToKeep>-1</artifactNumToKeep>\n  </logRotator>\n  <keepDependencies>false</keepDependencies>\n  <properties/>\n  <scm class=\"hudson.scm.SubversionSCM\">\n    <locations>\n      <hudson.scm.SubversionSCM_-ModuleLocation>\n        <remote>http://woserver.archtransco.com/svn/${THE_APP_NAME}/trunk</remote>\n        <local>.</local>\n      </hudson.scm.SubversionSCM_-ModuleLocation>\n    </locations>\n    <useUpdate>true</useUpdate>\n    <doRevert>false</doRevert>\n    <excludedRegions></excludedRegions>\n    <excludedUsers></excludedUsers>\n    <excludedRevprop></excludedRevprop>\n    <excludedCommitMessages></excludedCommitMessages>\n  </scm>\n  <canRoam>true</canRoam>\n  <disabled>false</disabled>\n  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>\n  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>\n  <triggers class=\"vector\"/>\n  <concurrentBuild>false</concurrentBuild>\n  <builders>\n    <hudson.tasks.Shell>\n      <command>/Library/Jenkins/Dependencies/setupWorkspace.sh &quot;\$WORKSPACE&quot; 54</command>\n    </hudson.tasks.Shell>\n    <hudson.tasks.Ant>\n      <targets>-propertyfile \${WORKSPACE}/Root/wolips.properties  -lib \${WORKSPACE}/Root/lib clean build</targets>\n    </hudson.tasks.Ant>\n  </builders>\n  <publishers>\n    <hudson.tasks.ArtifactArchiver>\n      <artifacts>dist/*.tar.gz</artifacts>\n      <latestOnly>false</latestOnly>\n    </hudson.tasks.ArtifactArchiver>\n   <hudson.plugins.postbuildtask.PostbuildTask>\n      <tasks>\n        <hudson.plugins.postbuildtask.TaskProperties>\n          <logTexts>\n            <hudson.plugins.postbuildtask.LogProperties>\n              <logText>BUILD SUCCESSFUL</logText>\n              <operator>AND</operator>\n            </hudson.plugins.postbuildtask.LogProperties>\n          </logTexts>\n          <EscalateStatus>false</EscalateStatus>\n          <RunIfJobSuccessful>false</RunIfJobSuccessful>\n          <script>${DEPLOY_TYPE}</script>\n        </hudson.plugins.postbuildtask.TaskProperties>\n      </tasks>\n    </hudson.plugins.postbuildtask.PostbuildTask>\n    <hudson.tasks.Mailer>\n      <recipients>${EMAIL_ADDRESS}</recipients>\n      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>\n      <sendToIndividuals>false</sendToIndividuals>\n    </hudson.tasks.Mailer>\n    <hudson.plugins.emotional__hudson.EmotionalHudsonPublisher/>\n  </publishers>\n  <buildWrappers/>\n</project>\n" | java -jar ${JENKINS_CLI} -s ${JENKINS_URL} create-job ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW
+			fi
+		
+			#Build it
+			#curl "${JENKINS_URL}/job/${THE_APP_NAME}/build?delay=0sec"
+			java -jar ${JENKINS_CLI} -s ${JENKINS_URL} build ${THE_APP_NAME} --username $JENKINS_USER --password $JENKINS_PW
+		fi
+	
+	fi
+fi
+
+echo $THE_APP_NAME > /tmp/debugGit.txt
+date > /tmp/debugGit.txt
